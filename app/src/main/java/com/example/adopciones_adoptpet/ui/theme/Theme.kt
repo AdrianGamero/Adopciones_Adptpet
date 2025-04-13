@@ -1,6 +1,5 @@
-package com.example.adopciones_adptpet.ui.theme
+package com.example.adopciones_adoptpet.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

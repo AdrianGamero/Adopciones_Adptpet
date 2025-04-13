@@ -1,4 +1,4 @@
-package com.example.adopciones_adptpet
+package com.example.adopciones_adoptpet
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.example.adopciones_adptpet"
+    namespace = "com.example.adopciones_adoptpet"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.adopciones_adptpet"
+        applicationId = "com.example.adopciones_adoptpet"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -40,7 +42,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
     packaging {
         resources {
@@ -67,4 +69,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.compose.material:material:1.5.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }

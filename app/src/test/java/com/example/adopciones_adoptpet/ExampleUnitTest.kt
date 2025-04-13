@@ -1,4 +1,4 @@
-package com.example.adopciones_adptpet
+package com.example.adopciones_adoptpet
 
 import org.junit.Test
 

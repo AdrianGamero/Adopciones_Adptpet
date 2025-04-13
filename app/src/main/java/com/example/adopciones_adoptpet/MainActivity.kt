@@ -1,18 +1,11 @@
-package com.example.adopciones_adptpet
+package com.example.adopciones_adoptpet
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.adopciones_adptpet.components.screens.baseScreen
-import com.example.adopciones_adptpet.ui.theme.Adopciones_AdptpetTheme
+import com.example.adopciones_adoptpet.components.screens.baseScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

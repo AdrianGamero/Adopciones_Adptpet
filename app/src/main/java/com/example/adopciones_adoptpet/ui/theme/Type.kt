@@ -1,4 +1,4 @@
-package com.example.adopciones_adptpet.ui.theme
+package com.example.adopciones_adoptpet.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

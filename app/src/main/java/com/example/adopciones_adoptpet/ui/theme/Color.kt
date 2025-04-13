@@ -1,4 +1,4 @@
-package com.example.adopciones_adptpet.ui.theme
+package com.example.adopciones_adoptpet.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
