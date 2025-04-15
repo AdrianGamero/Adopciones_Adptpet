@@ -32,7 +32,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.components.views.passwordField
 import com.example.adopciones_adoptpet.components.views.textField
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 
 
