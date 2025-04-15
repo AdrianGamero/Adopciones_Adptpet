@@ -5,15 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.adopciones_adoptpet.components.screens.LogInScreen
+import com.example.adopciones_adoptpet.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.components.screens.baseScreen
 import com.google.firebase.analytics.FirebaseAnalytics
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            baseScreen()
+            val navController = rememberNavController()
+
+            NavHost(navController = navController, startDestination = "LogInScreen") {
+                composable("SignUpScreen") { SignUpScreen(navController = navController) }
+                composable("LogInScreen") { LogInScreen(navController = navController) }
+                composable("BaseScreen") {baseScreen()}
+            }
         }
     }
 }

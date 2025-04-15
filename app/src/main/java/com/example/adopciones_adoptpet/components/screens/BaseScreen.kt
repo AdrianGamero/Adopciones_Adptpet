@@ -1,6 +1,8 @@
 package com.example.adopciones_adoptpet.components.screens
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.util.Base64
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -22,6 +24,7 @@ import com.example.adopciones_adoptpet.R
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.io.ByteArrayOutputStream
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -74,3 +77,5 @@ fun baseScreen() {
 fun DefaultPreview() {
     baseScreen()
 }
+
+
