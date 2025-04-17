@@ -1,9 +1,8 @@
-package com.example.adopciones_adoptpet.components.screens
+package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.R
-import com.example.adopciones_adoptpet.components.views.passwordField
-import com.example.adopciones_adoptpet.components.views.textField
+import com.example.adopciones_adoptpet.ui.components.views.passwordField
+import com.example.adopciones_adoptpet.ui.components.views.textField
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

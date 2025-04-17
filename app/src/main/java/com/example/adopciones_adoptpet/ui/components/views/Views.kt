@@ -1,4 +1,4 @@
-package com.example.adopciones_adoptpet.components.views
+package com.example.adopciones_adoptpet.ui.components.views
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
