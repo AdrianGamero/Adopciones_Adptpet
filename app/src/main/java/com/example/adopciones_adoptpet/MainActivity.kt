@@ -20,7 +20,10 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = "LogInScreen") {
                 composable("SignUpScreen") { SignUpScreen(navController = navController) }
                 composable("LogInScreen") { LogInScreen(navController = navController) }
-                composable("BaseScreen") { baseScreen() }
+                composable("BaseScreen") { baseScreen(
+
+
+                ) }
             }
         }
     }

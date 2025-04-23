@@ -1,6 +1,8 @@
 package com.example.adopciones_adoptpet.ui.components.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +13,13 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -24,18 +28,25 @@ import androidx.compose.ui.unit.dp
 fun filterBox(
     selectedFilters: Map<String,String>,
     allFilters: Map<String,List<String>>,
-    onFilterSelected: (filterName: String, selectedOption: String) -> Unit
+    onFilterSelected: (filterName: String, selectedOption: String) -> Unit,
+    onApply: (Map<String, String>) -> Unit,
+    onCancel: () -> Unit
 ) {
-    Card(
+    var tempFilters by remember { mutableStateOf(selectedFilters.toMutableMap())}
+    LaunchedEffect(selectedFilters) {
+        tempFilters = selectedFilters.toMutableMap()
+    }
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = 4.dp
+            .fillMaxWidth(0.9f)
+            .background(color = Color.White)
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             allFilters.forEach { (filterName, options) ->
                 val selectedOption = selectedFilters[filterName] ?: ""
                 Spacer(modifier = Modifier.height(8.dp))
+
                 filterMenu(label = filterName,
                     options = options,
                     selectedOption = selectedOption,
@@ -51,12 +62,12 @@ fun filterBox(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = {}
+                    onClick = onCancel
                 ) {
                     Text("Cancelar")
                 }
                 Button(
-                    onClick = {},
+                    onClick ={ onApply(tempFilters)},
                 ) {
                     Text("Aplicar")
                 }
@@ -82,11 +93,18 @@ fun filterBoxPreview(){
 
     filterBox(
         selectedFilters = selectedFilters,
-        allFilters = allFilters
-    ) { filterName, selectedOption ->
-        selectedFilters = selectedFilters.toMutableMap().also {
-            it[filterName] = selectedOption
+        allFilters = allFilters,
+        onFilterSelected = { filterName, selectedOption ->
+            selectedFilters = selectedFilters.toMutableMap().also {
+                it[filterName] = selectedOption
+            }
+        },
+        onApply = {filters->
+            selectedFilters = filters
+        },
+        onCancel = {
+
         }
-    }
+            )
 }
 

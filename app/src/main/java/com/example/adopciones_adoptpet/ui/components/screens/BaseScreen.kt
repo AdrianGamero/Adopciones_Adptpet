@@ -1,8 +1,10 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Divider
@@ -14,21 +16,36 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.adopciones_adoptpet.R
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
+import com.example.adopciones_adoptpet.ui.components.views.filterBox
+
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun baseScreen() {
-    val scaffoldState = rememberScaffoldState() // Estado del scaffold
-    val scope = rememberCoroutineScope() // Coroutines para gestionar la apertura del menú
+fun baseScreen(viewModel: FilterViewModel) {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    val filters = viewModel.filters.value
+    val selectedFilters = viewModel.selectedFilters.value
+    val showFilters = viewModel.showFilters.value
+    val resultText = viewModel.resultText.value
+
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -36,10 +53,9 @@ fun baseScreen() {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 navigationIcon = {
-                    // Icono de menú para abrir el Drawer
                     IconButton(onClick = {
                         scope.launch {
-                            scaffoldState.drawerState.open() // Abre el drawer
+                            scaffoldState.drawerState.open()
                         }
                     }) {
                         Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
@@ -64,15 +80,39 @@ fun baseScreen() {
         },
         content = { paddingValues ->
 
+            Button(onClick = {viewModel.toggleFilters()}) {
+                Text("Filtros")
+            }
+            Text(resultText)
+            if (showFilters) {
+                Dialog(onDismissRequest = { viewModel.showFilters },
+                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.8f)
+                        ,
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                            filterBox(
+                                selectedFilters = selectedFilters,
+                                allFilters = filters.associate { it.name to it.options },
+                                onFilterSelected = {filterName, selectedOption ->
+                        viewModel.updateFilter(filterName, selectedOption)
+                    },
+                                onApply={ selected->
+                                    viewModel.applyFilters(selected)
+                                },
+                                onCancel={
+                                    viewModel.cancelFilters()
+                                }
+                            )
+                        }
+                    }
+                }
         }
     )
-}
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    baseScreen()
 }
 
 
