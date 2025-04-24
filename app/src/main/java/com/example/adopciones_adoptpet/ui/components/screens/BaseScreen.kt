@@ -10,29 +10,31 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.adopciones_adoptpet.R
-import kotlinx.coroutines.launch
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.adopciones_adoptpet.R
+import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
+import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.views.filterBox
-
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -80,39 +82,56 @@ fun baseScreen(viewModel: FilterViewModel) {
         },
         content = { paddingValues ->
 
-            Button(onClick = {viewModel.toggleFilters()}) {
+            Button(onClick = {
+                viewModel.toggleFilters()
+                viewModel.loadFilters(null)
+            }) {
                 Text("Filtros")
             }
             Text(resultText)
             if (showFilters) {
-                Dialog(onDismissRequest = { viewModel.showFilters },
+                Dialog(
+                    onDismissRequest = { viewModel.showFilters },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(0.8f)
-                        ,
+                            .fillMaxHeight(0.8f),
                         contentAlignment = Alignment.TopCenter
                     ) {
-                            filterBox(
-                                selectedFilters = selectedFilters,
-                                allFilters = filters.associate { it.name to it.options },
-                                onFilterSelected = {filterName, selectedOption ->
-                        viewModel.updateFilter(filterName, selectedOption)
-                    },
-                                onApply={ selected->
-                                    viewModel.applyFilters(selected)
-                                },
-                                onCancel={
-                                    viewModel.cancelFilters()
-                                }
-                            )
-                        }
+                        filterBox(
+                            selectedFilters = selectedFilters,
+                            allFilters = filters.associate { it.name to it.options },
+                            onFilterSelected = { filterName, selectedOption ->
+                                viewModel.updateFilter(filterName, selectedOption)
+                            },
+                            onApply = { selected ->
+                                viewModel.applyFilters(selected)
+                            },
+                            onCancel = {
+                                viewModel.cancelFilters()
+                            }
+                        )
                     }
                 }
+            }
         }
     )
 }
 
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun baseScreenPreview() {
+    val context = LocalContext.current
+    val db = AdoptPetDataBase.getDatabase(context)
+
+    val dao = db.petWithImagesDao()
+    val repository = FilterRepositoryImpl(dao)
+    val useCase = GetFiltersUseCase(repository)
+    val viewModel = remember { FilterViewModel(useCase = useCase) }
+
+    baseScreen(viewModel = viewModel)
+}
 

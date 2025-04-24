@@ -6,10 +6,10 @@ import com.example.adopciones_adoptpet.firebase.FirebaseAuthService
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-class AuthRepositoryImpl: AuthRepository {
+class AuthRepositoryImpl : AuthRepository {
     override suspend fun logIn(email: String, password: String): Result<User> {
         return suspendCancellableCoroutine { cont ->
-            FirebaseAuthService.logIn(email,password){ result ->
+            FirebaseAuthService.logIn(email, password) { result ->
                 result.fold(
                     onSuccess = {
                         cont.resume(Result.success(User(it.uid)))
@@ -19,7 +19,7 @@ class AuthRepositoryImpl: AuthRepository {
                     },
 
 
-                )
+                    )
             }
         }
     }
@@ -30,6 +30,6 @@ class AuthRepositoryImpl: AuthRepository {
 
     override fun getCurrentUser(): User? {
         val firebaseUser = FirebaseAuthService.currentUser()
-        return firebaseUser?.let {User(it.uid)}
+        return firebaseUser?.let { User(it.uid) }
     }
 }

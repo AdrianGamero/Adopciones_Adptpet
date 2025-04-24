@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
@@ -26,13 +25,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun filterBox(
-    selectedFilters: Map<String,String>,
-    allFilters: Map<String,List<String>>,
+    selectedFilters: Map<String, String>,
+    allFilters: Map<String, List<String>>,
     onFilterSelected: (filterName: String, selectedOption: String) -> Unit,
     onApply: (Map<String, String>) -> Unit,
     onCancel: () -> Unit
 ) {
-    var tempFilters by remember { mutableStateOf(selectedFilters.toMutableMap())}
+    var tempFilters by remember { mutableStateOf(selectedFilters.toMutableMap()) }
     LaunchedEffect(selectedFilters) {
         tempFilters = selectedFilters.toMutableMap()
     }
@@ -57,7 +56,8 @@ fun filterBox(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -67,7 +67,7 @@ fun filterBox(
                     Text("Cancelar")
                 }
                 Button(
-                    onClick ={ onApply(tempFilters)},
+                    onClick = { onApply(tempFilters) },
                 ) {
                     Text("Aplicar")
                 }
@@ -78,17 +78,19 @@ fun filterBox(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun filterBoxPreview(){
+fun filterBoxPreview() {
     val allFilters = mapOf(
         "Categoría" to listOf("Perro", "Gato", "Otro"),
         "Tamaño" to listOf("Pequeño", "Mediano", "Grande")
     )
 
     var selectedFilters by remember {
-        mutableStateOf(mapOf(
-            "Categoría" to "Perro",
-            "Tamaño" to "Mediano"
-        ))
+        mutableStateOf(
+            mapOf(
+                "Categoría" to "Perro",
+                "Tamaño" to "Mediano"
+            )
+        )
     }
 
     filterBox(
@@ -99,12 +101,12 @@ fun filterBoxPreview(){
                 it[filterName] = selectedOption
             }
         },
-        onApply = {filters->
+        onApply = { filters ->
             selectedFilters = filters
         },
         onCancel = {
 
         }
-            )
+    )
 }
 

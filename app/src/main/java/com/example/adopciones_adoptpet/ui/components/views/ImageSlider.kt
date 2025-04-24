@@ -25,15 +25,16 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun imageSlider(images: List<String>){
-    val pagerState = rememberPagerState(pageCount = {images.size})
+fun imageSlider(images: List<String>) {
+    val pagerState = rememberPagerState(pageCount = { images.size })
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp)
     ) {
-        HorizontalPager(state = pagerState,
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
@@ -43,7 +44,8 @@ fun imageSlider(images: List<String>){
                 painter = rememberAsyncImagePainter(images[page]),
                 contentDescription = "Image $page",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop)
+                contentScale = ContentScale.Crop
+            )
 
         }
         Row(
@@ -71,7 +73,7 @@ fun imageSlider(images: List<String>){
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun imageSliderPreview(){
+fun imageSliderPreview() {
     val mockImages = listOf(
         "https://picsum.photos/id/1015/600/400",
         "https://picsum.photos/id/1016/600/400"

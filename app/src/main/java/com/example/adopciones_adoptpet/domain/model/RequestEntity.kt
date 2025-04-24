@@ -5,12 +5,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "requests")
 data class RequestEntity(
-    @PrimaryKey val requestId: String, // Igual que el ID en Firestore
+    @PrimaryKey val requestId: String,
     val usuarioId: String,
     val animalId: String,
     val protectoraId: String,
-    val estado: String, // "pendiente", "aceptada", "rechazada"
+    val estado: String,
     val mensaje: String?,
-    val fecha: Long, // timestamp en milisegundos
-    val sincronizado: Boolean = false // true si ya fue subida a Firestore
+    val fecha: Long,
+    val sincronizado: Boolean = false
 )

@@ -37,14 +37,14 @@ import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun LogInScreen(navController: NavController){
+fun LogInScreen(navController: NavController) {
     val scaffoldState = rememberScaffoldState() // Estado del scaffold
     val scope = rememberCoroutineScope() // Coroutines para gestionar la apertura del menú
     var eMail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val title ="Autenticación"
+    val title = "Autenticación"
 
 
 
@@ -87,16 +87,19 @@ fun LogInScreen(navController: NavController){
                 Button(
                     onClick = {
 
-                        FirebaseAuth.getInstance().signInWithEmailAndPassword(eMail,password).addOnCompleteListener{
-                            if (it.isSuccessful) {
-                                navController.navigate("BaseScreen")
-                            }else{
-                                Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
+                        FirebaseAuth.getInstance().signInWithEmailAndPassword(eMail, password)
+                            .addOnCompleteListener {
+                                if (it.isSuccessful) {
+                                    navController.navigate("BaseScreen")
+                                } else {
+                                    Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+                                }
                             }
-                        }
                     },
                     enabled = eMail.isNotBlank() && password.isNotBlank(),
-                    modifier = Modifier.width(200.dp).align(Alignment.CenterHorizontally)
+                    modifier = Modifier
+                        .width(200.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Text("Iniciar sesión")
                 }
@@ -106,11 +109,9 @@ fun LogInScreen(navController: NavController){
 }
 
 
-
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun LogInPreView (){
+fun LogInPreView() {
     LogInScreen(navController = rememberNavController())
 }
 //fun imageToBase64(bitmap: Bitmap): String {

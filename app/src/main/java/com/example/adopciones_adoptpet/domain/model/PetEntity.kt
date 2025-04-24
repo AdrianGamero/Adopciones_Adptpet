@@ -6,7 +6,8 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "pets",
+@Entity(
+    tableName = "pets",
     foreignKeys = [ForeignKey(
         entity = BreedEntity::class,
         parentColumns = ["breedId"],
@@ -14,11 +15,11 @@ import androidx.room.PrimaryKey
         onDelete = ForeignKey.CASCADE
     )],
     indices = [Index("breedId")]
-    )
+)
 data class PetEntity(
     @PrimaryKey val petId: String,
-    val name:String,
-    val age:Int,
+    val name: String,
+    val age: Int,
     val gender: String,
     val size: String,
     val breedId: String,

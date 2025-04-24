@@ -33,31 +33,49 @@ import com.example.adopciones_adoptpet.ui.components.views.textField
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-fun signUpUser (name: String,userName:String, lastName:String, eMail:String,address:String, password:String, onSuccess:()-> Unit, onError: (Exception) -> Unit, context: Context,navController: NavController){
-    val user =hashMapOf("name" to name,"userName" to userName,"lastName" to lastName,"eMail" to eMail,"address" to address, "password" to password)
+fun signUpUser(
+    name: String,
+    userName: String,
+    lastName: String,
+    eMail: String,
+    address: String,
+    password: String,
+    onSuccess: () -> Unit,
+    onError: (Exception) -> Unit,
+    context: Context,
+    navController: NavController
+) {
+    val user = hashMapOf(
+        "name" to name,
+        "userName" to userName,
+        "lastName" to lastName,
+        "eMail" to eMail,
+        "address" to address,
+        "password" to password
+    )
     val db = FirebaseFirestore.getInstance()
-    db.collection("user").add(user).addOnSuccessListener{
+    db.collection("user").add(user).addOnSuccessListener {
         onSuccess()
     }
         .addOnFailureListener { e ->
             onError(e)
         }
 
-    FirebaseAuth.getInstance().createUserWithEmailAndPassword(eMail,password).addOnCompleteListener{
-        if (it.isSuccessful) {
-            navController.navigate("LogInScreen")
-        }else{
-            Toast.makeText(context,"Error",Toast.LENGTH_SHORT).show()
+    FirebaseAuth.getInstance().createUserWithEmailAndPassword(eMail, password)
+        .addOnCompleteListener {
+            if (it.isSuccessful) {
+                navController.navigate("LogInScreen")
+            } else {
+                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
 
 }
 
 
-
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun SignUpScreen(navController: NavController){
+fun SignUpScreen(navController: NavController) {
     val scaffoldState = rememberScaffoldState() // Estado del scaffold
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
@@ -76,7 +94,7 @@ fun SignUpScreen(navController: NavController){
             )
         },
         content = {
-            Column (
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(it)
@@ -85,24 +103,26 @@ fun SignUpScreen(navController: NavController){
 
             {
 
-                textField("Nombre",name) {name = it }
-                textField("Apellidos",lastName) {lastName = it }
-                textField("Nombre de usuario",userName) {userName = it }
-                textField("E-Mail",eMail) {eMail = it }
-                passwordField("Contraseña", password) {password = it}
-                textField("Dirección",address) {address = it }
+                textField("Nombre", name) { name = it }
+                textField("Apellidos", lastName) { lastName = it }
+                textField("Nombre de usuario", userName) { userName = it }
+                textField("E-Mail", eMail) { eMail = it }
+                passwordField("Contraseña", password) { password = it }
+                textField("Dirección", address) { address = it }
 
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
-                        signUpUser(name,userName,lastName,eMail,address,password,
+                        signUpUser(
+                            name, userName, lastName, eMail, address, password,
                             onSuccess = {
                                 println("Usuario registrado con éxito")
                             },
                             onError = {
                                 println("Error al registrar: ${it.message}")
-                            },context,navController
-                        )                    },
+                            }, context, navController
+                        )
+                    },
                     enabled = name.isNotBlank() && password.isNotBlank() && lastName.isNotBlank() && userName.isNotBlank() && eMail.isNotBlank() && address.isNotBlank(),
                     modifier = Modifier
                         .width(200.dp)
@@ -119,6 +139,6 @@ fun SignUpScreen(navController: NavController){
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun SignUpPreView (){
+fun SignUpPreView() {
     SignUpScreen(navController = rememberNavController())
 }

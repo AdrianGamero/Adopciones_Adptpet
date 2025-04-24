@@ -18,13 +18,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun petCard (name:String, images: List<String>, age:Int, race:String,size:String, gender:String){
-    Box( modifier = Modifier
-        .fillMaxWidth()
-        .padding(top = 8.dp, start = 35.dp, end = 35.dp)
-        .border(width = 1.dp, color = Color.Gray),
+fun petCard(
+    name: String,
+    images: List<String>,
+    age: Int,
+    race: String,
+    size: String,
+    gender: String
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, start = 35.dp, end = 35.dp)
+            .border(width = 1.dp, color = Color.Gray),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Column(
             modifier = Modifier.width(321.dp)
         ) {
@@ -40,7 +48,11 @@ fun petCard (name:String, images: List<String>, age:Int, race:String,size:String
                 Text("Edad: ${age}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text("Raza: ${race}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text("Sexo: ${gender}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
-                Text("Tamaño: ${size}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp, bottom = 8.dp))
+                Text(
+                    "Tamaño: ${size}",
+                    fontSize = 17.sp,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                )
             }
         }
     }
@@ -48,8 +60,8 @@ fun petCard (name:String, images: List<String>, age:Int, race:String,size:String
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun petCardPreview(){
-    val mockName= "kyra"
+fun petCardPreview() {
+    val mockName = "kyra"
     val mockImages = listOf(
         "https://picsum.photos/id/1015/321/400",
         "https://picsum.photos/id/1016/321/400"
@@ -59,5 +71,5 @@ fun petCardPreview(){
     val size = "Pequeño"
     val gender = "Hembra"
 
-    petCard(mockName,mockImages, age, race,size, gender)
+    petCard(mockName, mockImages, age, race, size, gender)
 }

@@ -1,15 +1,15 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.Filter
 import com.example.adopciones_adoptpet.domain.model.PetType
-import com.example.adopciones_adoptpet.domain.repository.FilterRepository
+import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import kotlinx.coroutines.launch
 
-class FilterViewModel(private val repository: FilterRepository): ViewModel() {
+class FilterViewModel(private val useCase: GetFiltersUseCase) : ViewModel() {
     private val _filters = mutableStateOf<List<Filter>>(emptyList())
     val filters: State<List<Filter>> = _filters
 
@@ -27,13 +27,13 @@ class FilterViewModel(private val repository: FilterRepository): ViewModel() {
 
     fun loadFilters(petType: PetType?) {
         viewModelScope.launch {
-            _filters.value = repository.getAnimalFilters(petType)
+            _filters.value = useCase.invoke(petType)
         }
     }
 
     fun loadRequestFilters() {
         viewModelScope.launch {
-            _filters.value = repository.getRequestFilters()
+            _filters.value = useCase.invoke(null)
         }
     }
 

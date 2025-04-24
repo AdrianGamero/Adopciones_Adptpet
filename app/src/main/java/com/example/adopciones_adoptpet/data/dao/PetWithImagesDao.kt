@@ -13,6 +13,6 @@ interface PetWithImagesDao {
     @Query("SELECT * FROM pets WHERE petId = :petId")
     suspend fun getPetWithImages(petId: String): PetWithImagesAndBreed
 
-    @Query("SELECT * FROM breeds WHERE :petType IS NULL OR type= :petType")
+    @Query("SELECT name FROM breeds WHERE :petType IS NULL OR type= :petType")
     suspend fun getAllBreedsNames(petType: PetType?): List<String>
 }

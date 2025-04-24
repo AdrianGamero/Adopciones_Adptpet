@@ -1,10 +1,7 @@
 package com.example.adopciones_adoptpet.firebase
 
-import android.widget.Toast
-import com.example.adopciones_adoptpet.domain.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import kotlinx.coroutines.tasks.await
 
 object FirebaseAuthService {
     private val auth = FirebaseAuth.getInstance()
