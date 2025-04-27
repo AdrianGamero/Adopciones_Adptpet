@@ -76,7 +76,7 @@ fun signUpUser(
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SignUpScreen(navController: NavController) {
-    val scaffoldState = rememberScaffoldState() // Estado del scaffold
+    val scaffoldState = rememberScaffoldState()
     var name by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var userName by remember { mutableStateOf("") }

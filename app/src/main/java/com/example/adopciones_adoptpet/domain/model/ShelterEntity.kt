@@ -9,8 +9,8 @@ data class ShelterEntity(
     @PrimaryKey val shelterId: String,
     val name: String,
     val location: String,
-    val eMail: String,
+    val email: String,
     val phone: Int,
-    val Synchronized: Boolean,
-    val LastUpdate: Long
+    val synchronized: Boolean,
+    val lastUpdate: Long
 )

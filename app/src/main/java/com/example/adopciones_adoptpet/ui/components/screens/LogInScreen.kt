@@ -38,8 +38,8 @@ import com.google.firebase.auth.FirebaseAuth
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun LogInScreen(navController: NavController) {
-    val scaffoldState = rememberScaffoldState() // Estado del scaffold
-    val scope = rememberCoroutineScope() // Coroutines para gestionar la apertura del menú
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     var eMail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current

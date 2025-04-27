@@ -6,11 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "requests")
 data class RequestEntity(
     @PrimaryKey val requestId: String,
-    val usuarioId: String,
-    val animalId: String,
-    val protectoraId: String,
-    val estado: String,
-    val mensaje: String?,
-    val fecha: Long,
-    val sincronizado: Boolean = false
+    val userId: String,
+    val petId: String,
+    val shelterId: String,
+    val state: String,
+    val date: Long,
+    val synchronized: Boolean = false
 )

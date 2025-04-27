@@ -15,7 +15,7 @@ import com.example.adopciones_adoptpet.domain.model.ShelterEntity
 
 @Database(
     entities = [PetEntity::class, RequestEntity::class, ShelterEntity::class, BreedEntity::class, PetImageEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -32,7 +32,7 @@ abstract class AdoptPetDataBase : RoomDatabase() {
                     context.applicationContext,
                     AdoptPetDataBase::class.java,
                     "AdoptPetDataBase"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
