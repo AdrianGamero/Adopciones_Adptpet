@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -81,14 +82,24 @@ fun baseScreen(viewModel: FilterViewModel) {
             }
         },
         content = { paddingValues ->
-
+            Column {
             Button(onClick = {
                 viewModel.toggleFilters()
                 viewModel.loadFilters(null)
-            }) {
-                Text("Filtros")
+            })
+            LazyColumn {
+                items(pets) { pet ->
+                    petCard(
+                        name = pet.name,
+                        images = pet.images,
+                        age = pet.age,
+                        race = pet.breedName,
+                        size = pet.size,
+                        gender = pet.gender
+                    )
+                }
             }
-            Text(resultText)
+
             if (showFilters) {
                 Dialog(
                     onDismissRequest = { viewModel.showFilters },
@@ -115,6 +126,7 @@ fun baseScreen(viewModel: FilterViewModel) {
                         )
                     }
                 }
+            }
             }
         }
     )
