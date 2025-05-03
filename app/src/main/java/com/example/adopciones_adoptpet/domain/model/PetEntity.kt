@@ -17,13 +17,13 @@ import androidx.room.PrimaryKey
     indices = [Index("breedId")]
 )
 data class PetEntity(
-    @PrimaryKey val petId: String,
-    val name: String,
-    val age: Int,
-    val gender: String,
-    val size: String,
-    val breedId: String,
-    val shelterId: String,
-    val lastUpdate: Long,
+    @PrimaryKey val petId: String ="",
+    val name: String ="",
+    val age: Int =0,
+    val gender: String="",
+    val size: String="",
+    val breedId: String="",
+    val shelterId: String="",
+    val lastUpdate: Long=0,
     val synchronized: Boolean = false
 )

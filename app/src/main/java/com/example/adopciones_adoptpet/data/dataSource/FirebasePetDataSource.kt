@@ -4,11 +4,8 @@ import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetType
-import com.example.adopciones_adoptpet.domain.model.PetWithImages
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class FirebasePetDataSource (
         private val db: FirebaseFirestore
@@ -31,16 +28,27 @@ class FirebasePetDataSource (
         }
 
         suspend fun getAllImages(petId: String): List<PetImageEntity>{
-            val images = db.collection("pets")
-                .document(petId)
-                .collection("images")
-                .get()
-                .await()
+            val allImages = mutableListOf<PetImageEntity>()
 
+            val pets = db.collection("pets").get().await()
 
-            val imageList = images.documents.mapNotNull { it.toObject(PetImageEntity::class.java)?.copy(petId=petId) }
+            for (pet in pets.documents) {
+                val petId = pet.id
 
-            return imageList
+                val images = db.collection("pets")
+                    .document(petId)
+                    .collection("images")
+                    .get()
+                    .await()
+
+                val petImages = images.documents.mapNotNull { doc ->
+                    doc.toObject(PetImageEntity::class.java)?.copy(petId = petId)
+                }
+
+                allImages.addAll(petImages)
+            }
+
+            return allImages
         }
 
     suspend fun getAllBreeds(): List<BreedEntity>{

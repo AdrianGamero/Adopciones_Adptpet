@@ -5,16 +5,23 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
+import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
+import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.ui.components.screens.baseScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
+import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,12 +33,19 @@ class MainActivity : ComponentActivity() {
             val dao = db.petWithImagesDao()
             val repository = FilterRepositoryImpl(dao)
             val useCase = GetFiltersUseCase(repository)
-            val viewModel = remember { FilterViewModel(useCase = useCase) }
+            val filterViewModel = remember { FilterViewModel(useCase = useCase) }
+
+            val firebaseDb = FirebaseFirestore.getInstance()
+            val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
+            val roomPetDataSource = RoomPetDataSource(dao)
+            val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
+            val petViewModel = PetViewModel(petRepository)
+
 
             NavHost(navController = navController, startDestination = "baseScreen") {
                 composable("SignUpScreen") { SignUpScreen(navController = navController) }
                 composable("LogInScreen") { LogInScreen(navController = navController) }
-                composable("baseScreen"){ baseScreen(viewModel)}
+                composable("baseScreen"){ baseScreen(filterViewModel,petViewModel)}
 
             }
         }

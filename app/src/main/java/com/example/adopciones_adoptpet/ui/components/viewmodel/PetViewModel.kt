@@ -17,12 +17,17 @@ class PetViewModel(
     val pets: State<List<PetWithImagesAndBreeds>> = _pets
 
     init {
-        loadPets()
+        viewModelScope.launch {
+            repository.syncPetsWithRemote()
+            loadPets()
+        }
+
     }
 
     private fun loadPets() {
         viewModelScope.launch {
             val petsWithImages = repository.getPetsWithImagesAndBreeds()
+
             _pets.value = petsWithImages
         }
     }

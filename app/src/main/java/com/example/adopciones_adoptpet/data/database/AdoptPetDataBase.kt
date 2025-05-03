@@ -15,7 +15,7 @@ import com.example.adopciones_adoptpet.domain.model.ShelterEntity
 
 @Database(
     entities = [PetEntity::class, RequestEntity::class, ShelterEntity::class, BreedEntity::class, PetImageEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

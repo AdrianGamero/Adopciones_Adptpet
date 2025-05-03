@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.views
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,7 +26,7 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun imageSlider(images: List<String>) {
+fun imageSlider(images: MutableList<Bitmap>) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 
     Box(
@@ -79,5 +80,4 @@ fun imageSliderPreview() {
         "https://picsum.photos/id/1016/600/400"
     )
 
-    imageSlider(mockImages)
 }

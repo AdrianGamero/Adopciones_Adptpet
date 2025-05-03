@@ -2,6 +2,7 @@ package com.example.adopciones_adoptpet.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
@@ -39,14 +40,14 @@ interface PetWithImagesDao {
     @Query("SELECT * FROM breeds")
     suspend fun getAllbreeds(): List<BreedEntity>
 
-    @Insert
-    fun insertAllPets(pets: List<PetEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllPets(pets: List<PetEntity>)
 
-    @Insert
-    fun insertAllImages(images: List<PetImageEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllImages(images: List<PetImageEntity>)
 
-    @Insert
-    fun insertAllBreeds(breeds: List<BreedEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllBreeds(breeds: List<BreedEntity>)
 
 
 

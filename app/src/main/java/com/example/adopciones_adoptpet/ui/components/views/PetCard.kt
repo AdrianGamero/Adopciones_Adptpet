@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.views
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun petCard(
     name: String,
-    images: List<String>,
+    images: MutableList<Bitmap>,
     age: Int,
     race: String,
     size: String,
@@ -71,5 +72,4 @@ fun petCardPreview() {
     val size = "Pequeño"
     val gender = "Hembra"
 
-    petCard(mockName, mockImages, age, race, size, gender)
 }

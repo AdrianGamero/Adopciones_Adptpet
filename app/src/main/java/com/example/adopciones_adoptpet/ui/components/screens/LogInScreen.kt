@@ -126,7 +126,7 @@ fun LogInPreView() {
 db.collection("Imagenes").document("imagenes").get()
 .addOnSuccessListener { documento ->
 
-    val base64 = documento.getString("imagenBase64")
+    val base64 = document.getString("imagenBase64")
     base64?.let {
         val bytes = Base64.decode(it, Base64.DEFAULT)
         val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)

@@ -3,11 +3,14 @@ package com.example.adopciones_adoptpet.ui.components.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -30,23 +33,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.adopciones_adoptpet.R
+import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
+import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
+import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
+import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.views.filterBox
+import com.example.adopciones_adoptpet.ui.components.views.petCard
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun baseScreen(viewModel: FilterViewModel) {
+fun baseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    val filters = viewModel.filters.value
-    val selectedFilters = viewModel.selectedFilters.value
-    val showFilters = viewModel.showFilters.value
-    val resultText = viewModel.resultText.value
+    val filters = filterViewModel.filters.value
+    val selectedFilters = filterViewModel.selectedFilters.value
+    val showFilters = filterViewModel.showFilters.value
+    val pets = petViewModel.pets.value
+
 
 
 
@@ -83,11 +93,15 @@ fun baseScreen(viewModel: FilterViewModel) {
         },
         content = { paddingValues ->
             Column {
-            Button(onClick = {
-                viewModel.toggleFilters()
-                viewModel.loadFilters(null)
-            })
-            LazyColumn {
+                Button(onClick = {
+                    filterViewModel.toggleFilters()
+                    filterViewModel.loadFilters(null)
+
+                }){
+                    Text("Filtros")
+                }
+
+            LazyColumn (Modifier.padding(bottom = 8.dp)){
                 items(pets) { pet ->
                     petCard(
                         name = pet.name,
@@ -98,11 +112,12 @@ fun baseScreen(viewModel: FilterViewModel) {
                         gender = pet.gender
                     )
                 }
+
             }
 
             if (showFilters) {
                 Dialog(
-                    onDismissRequest = { viewModel.showFilters },
+                    onDismissRequest = { filterViewModel.showFilters },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
                 ) {
                     Box(
@@ -115,13 +130,13 @@ fun baseScreen(viewModel: FilterViewModel) {
                             selectedFilters = selectedFilters,
                             allFilters = filters.associate { it.name to it.options },
                             onFilterSelected = { filterName, selectedOption ->
-                                viewModel.updateFilter(filterName, selectedOption)
+                                filterViewModel.updateFilter(filterName, selectedOption)
                             },
                             onApply = { selected ->
-                                viewModel.applyFilters(selected)
+                                filterViewModel.applyFilters(selected)
                             },
                             onCancel = {
-                                viewModel.cancelFilters()
+                                filterViewModel.cancelFilters()
                             }
                         )
                     }
@@ -133,6 +148,7 @@ fun baseScreen(viewModel: FilterViewModel) {
 }
 
 
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun baseScreenPreview() {
@@ -140,10 +156,16 @@ fun baseScreenPreview() {
     val db = AdoptPetDataBase.getDatabase(context)
 
     val dao = db.petWithImagesDao()
-    val repository = FilterRepositoryImpl(dao)
-    val useCase = GetFiltersUseCase(repository)
-    val viewModel = remember { FilterViewModel(useCase = useCase) }
+    val filterRepository = FilterRepositoryImpl(dao)
+    val filterUseCase = GetFiltersUseCase(filterRepository)
+    val filterViewModel = remember { FilterViewModel(useCase = filterUseCase) }
 
-    baseScreen(viewModel = viewModel)
+    val firebaseDb = FirebaseFirestore.getInstance()
+    val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
+    val roomPetDataSource = RoomPetDataSource(dao)
+    val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
+    val petViewModel = PetViewModel(petRepository)
+
+    baseScreen(filterViewModel = filterViewModel, petViewModel= petViewModel)
 }
 

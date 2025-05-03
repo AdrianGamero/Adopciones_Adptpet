@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.data.repository
 
+import android.graphics.Bitmap
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
@@ -8,6 +9,9 @@ import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImages
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
+import com.example.adopciones_adoptpet.utils.Base64ToImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class PetRepositoryImpl(
     private val dao: PetWithImagesDao,
@@ -30,10 +34,15 @@ class PetRepositoryImpl(
         return pets.map{pet->
             val breedName = breeds.find { it.breedId == pet.breedId }?.name ?: ""
             val petImages = images.filter { it.petId == pet.petId }.map {it.url}
+            val convertedImages = mutableListOf<Bitmap>()
+                petImages.map { image ->
+                    val convertedImage = Base64ToImage.decodeBase64(image)
+                    convertedImages.add(convertedImage)
+                }
 
             PetWithImagesAndBreeds(
                 name = pet.name,
-                images = petImages,
+                images = convertedImages,
                 age = pet.age,
                 breedName = breedName,
                 size = pet.size,
@@ -43,7 +52,7 @@ class PetRepositoryImpl(
         }
     }
 
-    override suspend fun syncPetsWithRemote() {
+    override suspend fun syncPetsWithRemote() = withContext(Dispatchers.IO) {
         val remotePets = firebasePetDataSource.getAllPets()
         val remoteBreeds= firebasePetDataSource.getAllBreeds()
 
