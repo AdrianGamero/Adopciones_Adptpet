@@ -1,6 +1,7 @@
 package com.example.adopciones_adoptpet.data.repository
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
@@ -52,7 +53,9 @@ class PetRepositoryImpl(
         }
     }
 
-    override suspend fun syncPetsWithRemote() = withContext(Dispatchers.IO) {
+    override suspend fun syncPetsWithRemote(): Unit = withContext(Dispatchers.IO) {
+        Log.d("Sync", "Iniciando sincronización...")
+
         val remotePets = firebasePetDataSource.getAllPets()
         val remoteBreeds= firebasePetDataSource.getAllBreeds()
 
@@ -68,5 +71,7 @@ class PetRepositoryImpl(
         roomPetDataSource.insertAllBreeds(remoteBreeds)
         roomPetDataSource.insertAllPets(updatedPets)
         roomPetDataSource.insertAllImages(remoteImages)
+        Log.d("Sync", "Sincronización completada exitosamente")
+
     }
 }

@@ -39,12 +39,10 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun LogInScreen(navController: NavController) {
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
     var eMail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
-    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val title = "Autenticación"
+
 
 
 
@@ -116,36 +114,12 @@ fun LogInPreView() {
 }
 //fun imageToBase64(bitmap: Bitmap): String {
 //    val outputStream = ByteArrayOutputStream()
-//    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream) // Comprimir para que pese menos
+//    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
 //    val byteArray = outputStream.toByteArray()
 //    return Base64.encodeToString(byteArray, Base64.DEFAULT)
 //}
 
 
-/*val db = FirebaseFirestore.getInstance()
-db.collection("Imagenes").document("imagenes").get()
-.addOnSuccessListener { documento ->
 
-    val base64 = document.getString("imagenBase64")
-    base64?.let {
-        val bytes = Base64.decode(it, Base64.DEFAULT)
-        val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        bitmap = bmp
-    }
-
-    Toast.makeText(context, "No se encontró imagen", Toast.LENGTH_SHORT).show()
-
-}
-.addOnFailureListener {
-    Toast.makeText(context, "Error al leer Firestore", Toast.LENGTH_SHORT).show()
-}*/
-
-/*bitmap?.let {
-    Image(
-        bitmap = it.asImageBitmap(),
-        contentDescription = "Imagen desde Firestore",
-        modifier = Modifier.size(200.dp)
-    )
-}*/
 
 

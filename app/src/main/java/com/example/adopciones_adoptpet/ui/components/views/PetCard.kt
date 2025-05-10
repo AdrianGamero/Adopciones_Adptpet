@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,11 +32,11 @@ fun petCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp, start = 35.dp, end = 35.dp)
-            .border(width = 1.dp, color = Color.Gray),
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(24.dp)),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.width(321.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             imageSlider(images)
             Column(modifier = Modifier.padding(start = 8.dp)) {

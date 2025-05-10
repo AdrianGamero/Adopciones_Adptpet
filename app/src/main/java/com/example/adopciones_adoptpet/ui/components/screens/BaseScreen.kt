@@ -1,24 +1,31 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Divider
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
@@ -49,15 +56,13 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun baseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
+fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val filters = filterViewModel.filters.value
     val selectedFilters = filterViewModel.selectedFilters.value
     val showFilters = filterViewModel.showFilters.value
     val pets = petViewModel.pets.value
-
-
 
 
     Scaffold(
@@ -93,15 +98,22 @@ fun baseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
         },
         content = { paddingValues ->
             Column {
-                Button(onClick = {
+                Button(
+                    onClick = {
                     filterViewModel.toggleFilters()
                     filterViewModel.loadFilters(null)
-
-                }){
+                },
+                    Modifier.padding(start = 8.dp)
+                ){
                     Text("Filtros")
                 }
 
-            LazyColumn (Modifier.padding(bottom = 8.dp)){
+            LazyColumn (Modifier
+                .padding(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ){
+                Log.d("Base", "montaje iniciado")
+
                 items(pets) { pet ->
                     petCard(
                         name = pet.name,
@@ -112,6 +124,7 @@ fun baseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
                         gender = pet.gender
                     )
                 }
+                Log.d("Base", "montaje terminado")
 
             }
 
@@ -151,7 +164,7 @@ fun baseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun baseScreenPreview() {
+fun BaseScreenPreview() {
     val context = LocalContext.current
     val db = AdoptPetDataBase.getDatabase(context)
 
@@ -166,6 +179,6 @@ fun baseScreenPreview() {
     val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
     val petViewModel = PetViewModel(petRepository)
 
-    baseScreen(filterViewModel = filterViewModel, petViewModel= petViewModel)
+    BaseScreen(filterViewModel = filterViewModel, petViewModel= petViewModel)
 }
 

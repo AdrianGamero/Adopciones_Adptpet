@@ -17,7 +17,7 @@ import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
-import com.example.adopciones_adoptpet.ui.components.screens.baseScreen
+import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = "baseScreen") {
                 composable("SignUpScreen") { SignUpScreen(navController = navController) }
                 composable("LogInScreen") { LogInScreen(navController = navController) }
-                composable("baseScreen"){ baseScreen(filterViewModel,petViewModel)}
+                composable("baseScreen"){ BaseScreen(filterViewModel,petViewModel)}
 
             }
         }

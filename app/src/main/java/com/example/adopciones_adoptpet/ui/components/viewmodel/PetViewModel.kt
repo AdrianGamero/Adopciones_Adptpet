@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
@@ -18,7 +19,6 @@ class PetViewModel(
 
     init {
         viewModelScope.launch {
-            repository.syncPetsWithRemote()
             loadPets()
         }
 
@@ -29,6 +29,14 @@ class PetViewModel(
             val petsWithImages = repository.getPetsWithImagesAndBreeds()
 
             _pets.value = petsWithImages
+        }
+    }
+    suspend fun syncPets(){
+        try {
+            repository.syncPetsWithRemote()
+            Log.d("Sync", "Sincronización completada desde ViewModel")
+        } catch (e: Exception) {
+            Log.e("Sync", "Error durante la sincronización", e)
         }
     }
 }
