@@ -15,6 +15,7 @@ import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
+import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
@@ -39,7 +40,8 @@ class MainActivity : ComponentActivity() {
             val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
             val roomPetDataSource = RoomPetDataSource(dao)
             val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
-            val petViewModel = PetViewModel(petRepository)
+            val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
+            val petViewModel = PetViewModel(syncAndLoadUseCase)
 
 
             NavHost(navController = navController, startDestination = "baseScreen") {
@@ -52,9 +54,4 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun Greeting() {
-
-}
 

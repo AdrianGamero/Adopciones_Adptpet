@@ -5,6 +5,7 @@ import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 
@@ -22,13 +23,13 @@ class RoomPetDataSource(private val dao: PetWithImagesDao) {
             dao.insertAllBreeds(breeds)
         }
 
-        suspend fun getAllPets(): List<PetEntity>{
+        suspend fun getAllPets():Flow<List<PetEntity>>{
             return dao.getAllPets()
         }
-        suspend fun getAllBreeds(): List<BreedEntity>{
-            return dao.getAllbreeds()
+        suspend fun getAllBreeds(): Flow<List<BreedEntity>>{
+            return dao.getAllBreeds()
         }
-        suspend fun getAllImages(): List<PetImageEntity>{
+        suspend fun getAllImages(): Flow<List<PetImageEntity>>{
             return dao.getAllImages()
         }
 

@@ -5,51 +5,57 @@ import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetType
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
 
 class FirebasePetDataSource (
         private val db: FirebaseFirestore
     ) {
+    val hasRemoteChanges = MutableStateFlow(false)
 
-        suspend fun getAllPets(): List<PetEntity>  {
+
+    init {
+        observePets()
+    }
+
+    suspend fun getAllPets(): List<PetEntity>  {
             val petList = mutableListOf<PetEntity>()
             val pet = db.collection("pets").get().await()
 
             for (doc in pet.documents) {
-                val petId = doc.id
+                val petId = doc.id.toInt()
                 val petData = doc.toObject(PetEntity::class.java)?.copy(petId = petId)
                 if (petData != null) {
                     petList.add(petData)
                 }
             }
-
-
             return petList
         }
 
-        suspend fun getAllImages(petId: String): List<PetImageEntity>{
-            val allImages = mutableListOf<PetImageEntity>()
+    suspend fun getAllImages(): List<PetImageEntity>{
+        val allImages = mutableListOf<PetImageEntity>()
 
-            val pets = db.collection("pets").get().await()
+        val pets = db.collection("pets").get().await()
 
-            for (pet in pets.documents) {
-                val petId = pet.id
+        for (pet in pets.documents) {
+            val petId = pet.id.toInt()
 
-                val images = db.collection("pets")
-                    .document(petId)
-                    .collection("images")
-                    .get()
-                    .await()
+            val images = db.collection("pets")
+                .document(petId.toString())
+                .collection("images")
+                .get()
+                .await()
 
-                val petImages = images.documents.mapNotNull { doc ->
-                    doc.toObject(PetImageEntity::class.java)?.copy(petId = petId)
-                }
-
-                allImages.addAll(petImages)
+            val petImages = images.documents.mapNotNull { doc ->
+                doc.toObject(PetImageEntity::class.java)?.copy(petId = petId)
             }
 
-            return allImages
+            allImages.addAll(petImages)
         }
+
+        return allImages
+    }
+
 
     suspend fun getAllBreeds(): List<BreedEntity>{
         return db.collection("breeds")
@@ -57,10 +63,25 @@ class FirebasePetDataSource (
             .await()
             .map { doc ->
                 BreedEntity(
-                    breedId = doc.id,
+                    breedId = doc.id.toInt(),
                     name = doc.getString("name") ?: "",
                     type = PetType.valueOf(doc.getString("type")?.uppercase() ?: "DOG")
                 )
             }
     }
+
+    fun observePets() {
+        db.collection("pets").addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) hasRemoteChanges.value = true
+        }
+
+        db.collection("breeds").addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) hasRemoteChanges.value = true
+        }
     }
+
+    fun resetRemoteChangeFlag() {
+        hasRemoteChanges.value = false
+    }
+}
+

@@ -1,42 +1,75 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.adopciones_adoptpet.domain.repository.PetRepository
-import androidx.compose.runtime.State
+
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
+import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 
 class PetViewModel(
-    private val repository: PetRepository
+    private val useCase: SyncAndLoadUseCase
 ) : ViewModel() {
 
-    private val _pets = mutableStateOf<List<PetWithImagesAndBreeds>>(emptyList())
-    val pets: State<List<PetWithImagesAndBreeds>> = _pets
+    private val _pets = MutableStateFlow<List<PetWithImagesAndBreeds>>(emptyList())
+    val pets: StateFlow<List<PetWithImagesAndBreeds>> = _pets
+
+    private var syncJob: Job? = null
+    private var hasStarted = false
+
+    companion object {
+        private const val SYNC_INTERVAL = 600_000L
+    }
 
     init {
-        viewModelScope.launch {
-            loadPets()
-        }
-
+        startSyncAndObserve()
     }
 
-    private fun loadPets() {
-        viewModelScope.launch {
-            val petsWithImages = repository.getPetsWithImagesAndBreeds()
-
-            _pets.value = petsWithImages
-        }
-    }
-    suspend fun syncPets(){
+    suspend fun syncPets() {
         try {
-            repository.syncPetsWithRemote()
-            Log.d("Sync", "Sincronización completada desde ViewModel")
+            useCase.sync()
         } catch (e: Exception) {
-            Log.e("Sync", "Error durante la sincronización", e)
+            Log.e("Sync", "Error al sincronizar: ${e.localizedMessage}")
         }
+    }
+
+    private suspend fun observePets() {
+        useCase.invoke().collect { petList ->
+            _pets.value = petList
+        }
+    }
+
+    fun startSyncAndObserve() {
+        if (hasStarted) return
+        hasStarted = true
+
+        startSyncingPeriodically(SYNC_INTERVAL)
+
+        viewModelScope.launch {
+            observePets()
+        }
+    }
+
+    private fun startSyncingPeriodically(intervalMillis: Long) {
+        syncJob = viewModelScope.launch(Dispatchers.IO) {
+            while (isActive) {
+                delay(intervalMillis)
+                Log.d("Sync", "Sincronización iniciada")
+                syncPets()
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        syncJob?.cancel()
     }
 }

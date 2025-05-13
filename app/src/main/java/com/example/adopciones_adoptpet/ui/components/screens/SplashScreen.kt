@@ -17,7 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(petViewModel: PetViewModel, onSyncComplete: () -> Unit) {

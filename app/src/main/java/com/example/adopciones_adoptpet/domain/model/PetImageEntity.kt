@@ -18,6 +18,6 @@ import androidx.room.PrimaryKey
 )
 data class PetImageEntity(
     @PrimaryKey val imageId: Int =0,
-    val petId: String="",
+    val petId: Int=0,
     val url: String=""
 )

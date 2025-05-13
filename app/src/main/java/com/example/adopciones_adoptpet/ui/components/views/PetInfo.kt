@@ -1,38 +1,24 @@
 package com.example.adopciones_adoptpet.ui.components.views
 
-import android.graphics.Bitmap
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 
 @Composable
-fun petCard(
-    pet:PetWithImagesAndBreeds
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, start = 35.dp, end = 35.dp)
-            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(24.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+fun PetInfo(pet: PetWithImagesAndBreeds) {
+    Box(Modifier.fillMaxWidth()){
+        Column {
             ImageSlider(pet.images)
             Column(modifier = Modifier.padding(start = 8.dp)) {
 
@@ -51,21 +37,21 @@ fun petCard(
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 )
             }
+
+            Row(Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = {
+
+                    },
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp)
+                ) {
+                    androidx.compose.material.Text("Enviar Solicitud")
+                }
+
+            }
+
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun petCardPreview() {
-    val mockName = "kyra"
-    val mockImages = listOf(
-        "https://picsum.photos/id/1015/321/400",
-        "https://picsum.photos/id/1016/321/400"
-    )
-    val age = 8
-    val race = "Jack Rusell"
-    val size = "Pequeño"
-    val gender = "Hembra"
-
 }

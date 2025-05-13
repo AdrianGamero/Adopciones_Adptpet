@@ -22,25 +22,24 @@ class FilterViewModel(private val useCase: GetFiltersUseCase) : ViewModel() {
     private val _appliedFilters = mutableStateOf<Map<String, String>>(emptyMap())
     val appliedFilters: State<Map<String, String>> = _appliedFilters
 
-    private val _resultText = mutableStateOf("")
-    val resultText: State<String> = _resultText
+
 
     fun loadFilters(petType: PetType?) {
         viewModelScope.launch {
-            _filters.value = useCase.invoke(petType)
+            val filtersResult = useCase.invoke(petType)
+            _filters.value = filtersResult
         }
     }
 
     fun loadRequestFilters() {
         viewModelScope.launch {
-            _filters.value = useCase.invoke(null)
+            val filtersResult = useCase.invoke(null)
+            _filters.value = filtersResult
         }
     }
 
     fun updateFilter(name: String, selected: String) {
-        _selectedFilters.value = _selectedFilters.value.toMutableMap().apply {
-            put(name, selected)
-        }
+        _selectedFilters.value = _selectedFilters.value + (name to selected)
     }
 
     fun toggleFilters() {
@@ -49,7 +48,6 @@ class FilterViewModel(private val useCase: GetFiltersUseCase) : ViewModel() {
 
     fun applyFilters(selected: Map<String, String>) {
         _appliedFilters.value = selected
-        _resultText.value = "Filtro aplicado: ${selected["Categoría"]}, ${selected["Tamaño"]}"
         _showFilters.value = false
     }
 

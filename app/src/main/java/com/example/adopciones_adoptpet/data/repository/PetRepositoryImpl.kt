@@ -1,77 +1,105 @@
 package com.example.adopciones_adoptpet.data.repository
 
-import android.graphics.Bitmap
+import android.annotation.SuppressLint
 import android.util.Log
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
-import com.example.adopciones_adoptpet.domain.model.PetWithImages
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
 import com.example.adopciones_adoptpet.utils.Base64ToImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class PetRepositoryImpl(
     private val dao: PetWithImagesDao,
     private val firebasePetDataSource: FirebasePetDataSource,
     private val roomPetDataSource: RoomPetDataSource
-) : PetRepository{
+) : PetRepository {
 
-    override suspend fun getAllPetsWithImages(): List<PetWithImages> {
-        return dao.getAllPetsWithImages()
-    }
+
     override suspend fun getPetsByBreed(breedId: String): List<PetEntity> {
         return dao.getPetsByBreed(breedId)
     }
-    override suspend fun getPetsWithImagesAndBreeds():List<PetWithImagesAndBreeds>{
-        val pets = roomPetDataSource.getAllPets()
-        val breeds = roomPetDataSource.getAllBreeds()
-        val images = roomPetDataSource.getAllImages()
 
+    @SuppressLint("SuspiciousIndentation")
+    override suspend fun getPetsWithImagesAndBreeds(): Flow<List<PetWithImagesAndBreeds>> {
+        return combine(
+            roomPetDataSource.getAllPets(),
+            roomPetDataSource.getAllBreeds(),
+            roomPetDataSource.getAllImages()
+        ) { pets, breeds, images ->
+            pets.map { pet ->
+                val breedName = breeds.find { it.breedId == pet.breedId }?.name ?: ""
+                val petImages = images.filter { it.petId == pet.petId }.map { it.url }
+                val convertedImages = petImages.map { Base64ToImage.decodeBase64(it) }
 
-        return pets.map{pet->
-            val breedName = breeds.find { it.breedId == pet.breedId }?.name ?: ""
-            val petImages = images.filter { it.petId == pet.petId }.map {it.url}
-            val convertedImages = mutableListOf<Bitmap>()
-                petImages.map { image ->
-                    val convertedImage = Base64ToImage.decodeBase64(image)
-                    convertedImages.add(convertedImage)
-                }
-
-            PetWithImagesAndBreeds(
-                name = pet.name,
-                images = convertedImages,
-                age = pet.age,
-                breedName = breedName,
-                size = pet.size,
-                gender = pet.gender
-            )
-
+                PetWithImagesAndBreeds(
+                    name = pet.name,
+                    images = convertedImages,
+                    age = pet.age,
+                    breedName = breedName,
+                    size = pet.size,
+                    gender = pet.gender
+                )
+            }
         }
     }
 
+
     override suspend fun syncPetsWithRemote(): Unit = withContext(Dispatchers.IO) {
-        Log.d("Sync", "Iniciando sincronización...")
+
+        if (!firebasePetDataSource.hasRemoteChanges.value) {
+            Log.d("sync", "No hay cambios remotos, no se sincroniza.")
+            return@withContext
+        }
 
         val remotePets = firebasePetDataSource.getAllPets()
-        val remoteBreeds= firebasePetDataSource.getAllBreeds()
-
+        val remoteBreeds = firebasePetDataSource.getAllBreeds()
         val remoteImages = mutableListOf<PetImageEntity>()
 
+        val localBreedsFlow = roomPetDataSource.getAllBreeds()
+
+        val localBreeds = localBreedsFlow.first()
+
         val updatedPets = remotePets.map { pet->
-            val images= firebasePetDataSource.getAllImages(pet.petId)
+            val images= firebasePetDataSource.getAllImages()
             remoteImages.addAll(images)
-            pet.copy(lastUpdate = System.currentTimeMillis())
-             }
+            pet.copy()
+        }
 
 
-        roomPetDataSource.insertAllBreeds(remoteBreeds)
-        roomPetDataSource.insertAllPets(updatedPets)
-        roomPetDataSource.insertAllImages(remoteImages)
-        Log.d("Sync", "Sincronización completada exitosamente")
+        val updatedBreeds = remoteBreeds.filter { remoteBreed ->
+            val localBreed = localBreeds.find { it.breedId == remoteBreed.breedId }
+            localBreed == null || localBreed.name != remoteBreed.name
+        }
+
+        if (updatedBreeds.isNotEmpty()) {
+            Log.d("repo", "Razas introducidas")
+            roomPetDataSource.insertAllBreeds(updatedBreeds)
+        }else{
+            Log.d("repo", "No hay cambios en las razas")
+
+        }
+
+        if (updatedPets.isNotEmpty()) {
+            roomPetDataSource.insertAllPets(updatedPets)
+            Log.d("repo", "Animales introducidos")
+
+            roomPetDataSource.insertAllImages(remoteImages)
+            Log.d("repo", "Imagenes introducidas")
+
+        }else{
+            Log.d("repo", "No hay cambios en los animales")
+
+        }
+        firebasePetDataSource.resetRemoteChangeFlag()
 
     }
+
 }

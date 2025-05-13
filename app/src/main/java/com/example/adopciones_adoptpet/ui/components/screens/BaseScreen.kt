@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
@@ -46,6 +48,7 @@ import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
+import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.views.filterBox
@@ -59,11 +62,11 @@ import kotlinx.coroutines.launch
 fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+
     val filters = filterViewModel.filters.value
     val selectedFilters = filterViewModel.selectedFilters.value
     val showFilters = filterViewModel.showFilters.value
-    val pets = petViewModel.pets.value
-
+    val pets by petViewModel.pets.collectAsStateWithLifecycle()
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -87,7 +90,6 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
                     .fillMaxHeight()
                     .width(250.dp)
                     .padding(16.dp)
-
             ) {
                 Text("Opción 1", modifier = Modifier.padding(vertical = 8.dp))
                 Divider()
@@ -97,64 +99,62 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
             }
         },
         content = { paddingValues ->
-            Column {
+            Column(
+                modifier = Modifier.padding(paddingValues)
+            ) {
                 Button(
                     onClick = {
-                    filterViewModel.toggleFilters()
-                    filterViewModel.loadFilters(null)
-                },
+                        filterViewModel.toggleFilters()
+                        filterViewModel.loadFilters(null)
+                    },
                     Modifier.padding(start = 8.dp)
-                ){
+                ) {
                     Text("Filtros")
                 }
 
-            LazyColumn (Modifier
-                .padding(bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ){
-                Log.d("Base", "montaje iniciado")
-
-                items(pets) { pet ->
-                    petCard(
-                        name = pet.name,
-                        images = pet.images,
-                        age = pet.age,
-                        race = pet.breedName,
-                        size = pet.size,
-                        gender = pet.gender
-                    )
-                }
-                Log.d("Base", "montaje terminado")
-
-            }
-
-            if (showFilters) {
-                Dialog(
-                    onDismissRequest = { filterViewModel.showFilters },
-                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.8f),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        filterBox(
-                            selectedFilters = selectedFilters,
-                            allFilters = filters.associate { it.name to it.options },
-                            onFilterSelected = { filterName, selectedOption ->
-                                filterViewModel.updateFilter(filterName, selectedOption)
-                            },
-                            onApply = { selected ->
-                                filterViewModel.applyFilters(selected)
-                            },
-                            onCancel = {
-                                filterViewModel.cancelFilters()
-                            }
+
+                    items(pets ?: emptyList()) { pet ->
+                        petCard(
+                            pet=pet
                         )
                     }
+
                 }
-            }
+
+                if (showFilters) {
+                    Dialog(
+                        onDismissRequest = {
+                            filterViewModel.toggleFilters()
+                        },
+                        properties = DialogProperties(usePlatformDefaultWidth = false)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.8f),
+                            contentAlignment = Alignment.TopCenter
+                        ) {
+                            filterBox(
+                                selectedFilters = selectedFilters,
+                                allFilters = filters.associate { it.name to it.options },
+                                onFilterSelected = { filterName, selectedOption ->
+                                    filterViewModel.updateFilter(filterName, selectedOption)
+                                },
+                                onApply = { selected ->
+                                    filterViewModel.applyFilters(selected)
+                                },
+                                onCancel = {
+                                    filterViewModel.cancelFilters()
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     )
@@ -177,7 +177,8 @@ fun BaseScreenPreview() {
     val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
     val roomPetDataSource = RoomPetDataSource(dao)
     val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
-    val petViewModel = PetViewModel(petRepository)
+    val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
+    val petViewModel = PetViewModel(syncAndLoadUseCase)
 
     BaseScreen(filterViewModel = filterViewModel, petViewModel= petViewModel)
 }

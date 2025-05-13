@@ -28,7 +28,7 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun imageSlider(images: MutableList<Bitmap>) {
+fun ImageSlider(images: List<Bitmap>) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 
     Box(

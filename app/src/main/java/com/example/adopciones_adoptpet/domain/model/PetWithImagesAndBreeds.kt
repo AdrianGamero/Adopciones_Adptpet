@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 
 data class PetWithImagesAndBreeds(
     val name: String,
-    val images: MutableList<Bitmap>,
+    val images:List<Bitmap>,
     val age: Int,
     val breedName: String,
     val size: String,

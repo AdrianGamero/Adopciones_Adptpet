@@ -9,6 +9,7 @@ import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.SplashScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,8 +26,8 @@ class SplashActivity : ComponentActivity() {
         val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
         val roomPetDataSource = RoomPetDataSource(dao)
         val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
-        val petViewModel = PetViewModel(petRepository)
-        Log.d("SplashActivity", "onCreate: SplashActivity cargada")
+        val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
+        val petViewModel = PetViewModel(syncAndLoadUseCase)
 
         setContent {
             SplashScreen(petViewModel){

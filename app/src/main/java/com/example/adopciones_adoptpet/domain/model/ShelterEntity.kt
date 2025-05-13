@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "shelters")
 data class ShelterEntity(
-    @PrimaryKey val shelterId: String,
+    @PrimaryKey val shelterId: Int,
     val name: String,
     val location: String,
     val email: String,
