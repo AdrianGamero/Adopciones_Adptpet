@@ -2,6 +2,7 @@ package com.example.adopciones_adoptpet.ui.components.views
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,13 +22,15 @@ import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 
 @Composable
 fun petCard(
-    pet:PetWithImagesAndBreeds
+    pet:PetWithImagesAndBreeds,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 8.dp, start = 35.dp, end = 35.dp)
-            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(24.dp)),
+            .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(24.dp))
+            .clickable{onClick()},
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -58,14 +61,6 @@ fun petCard(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun petCardPreview() {
-    val mockName = "kyra"
-    val mockImages = listOf(
-        "https://picsum.photos/id/1015/321/400",
-        "https://picsum.photos/id/1016/321/400"
-    )
-    val age = 8
-    val race = "Jack Rusell"
-    val size = "Pequeño"
-    val gender = "Hembra"
+
 
 }

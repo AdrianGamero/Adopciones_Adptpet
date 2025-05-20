@@ -7,20 +7,23 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.adopciones_adoptpet.converters.Converters
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
+import com.example.adopciones_adoptpet.data.dao.UserDao
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
+import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.RequestEntity
 import com.example.adopciones_adoptpet.domain.model.ShelterEntity
 
 @Database(
-    entities = [PetEntity::class, RequestEntity::class, ShelterEntity::class, BreedEntity::class, PetImageEntity::class],
-    version = 4,
+    entities = [PetEntity::class, RequestEntity::class, ShelterEntity::class, BreedEntity::class, PetImageEntity::class, LoggedUserEntity::class],
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AdoptPetDataBase : RoomDatabase() {
     abstract fun petWithImagesDao(): PetWithImagesDao
+    abstract fun userDao():UserDao
 
     companion object {
         @Volatile

@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,14 +29,19 @@ import coil.compose.rememberAsyncImagePainter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImageSlider(images: List<Bitmap>) {
+fun ImageSlider(images: List<Bitmap>,  roundedCorners: Boolean = true) {
     val pagerState = rememberPagerState(pageCount = { images.size })
+    val shape = if (roundedCorners) {
+        RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    } else {
+        RectangleShape
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(350.dp)
-            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            .clip(shape)
     ) {
         HorizontalPager(
             state = pagerState,
@@ -53,7 +59,6 @@ fun ImageSlider(images: List<Bitmap>) {
 
         }
 
-        //Dots
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,

@@ -1,7 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,11 +40,6 @@ fun LogInScreen(navController: NavController) {
     var eMail by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
-
-
-
-
-
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {

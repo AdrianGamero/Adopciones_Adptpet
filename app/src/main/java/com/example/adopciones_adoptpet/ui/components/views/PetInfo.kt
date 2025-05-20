@@ -19,7 +19,7 @@ import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 fun PetInfo(pet: PetWithImagesAndBreeds) {
     Box(Modifier.fillMaxWidth()){
         Column {
-            ImageSlider(pet.images)
+            ImageSlider(pet.images,roundedCorners = false)
             Column(modifier = Modifier.padding(start = 8.dp)) {
 
                 Text(

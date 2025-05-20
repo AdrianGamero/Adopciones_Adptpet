@@ -1,7 +1,9 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
+
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
-import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,29 +13,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Divider
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,19 +45,27 @@ import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
+import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
+import com.example.adopciones_adoptpet.ui.components.views.PetInfo
 import com.example.adopciones_adoptpet.ui.components.views.filterBox
 import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import androidx.activity.compose.BackHandler
+import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
+import com.example.adopciones_adoptpet.ui.components.views.ProfileCard
+import com.example.adopciones_adoptpet.utils.SessionManager
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
+fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, sessionViewModel: SessionViewModel,onLoginClick: () -> Unit
+
+) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
@@ -67,6 +73,8 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
     val selectedFilters = filterViewModel.selectedFilters.value
     val showFilters = filterViewModel.showFilters.value
     val pets by petViewModel.pets.collectAsStateWithLifecycle()
+    var selectedPet by remember { mutableStateOf<PetWithImagesAndBreeds?>(null) }
+
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -91,7 +99,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
                     .width(250.dp)
                     .padding(16.dp)
             ) {
-                Text("Opción 1", modifier = Modifier.padding(vertical = 8.dp))
+                ProfileCard(sessionViewModel,onLoginClick = onLoginClick)
                 Divider()
                 Text("Opción 2", modifier = Modifier.padding(vertical = 8.dp))
                 Divider()
@@ -100,65 +108,75 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel) {
         },
         content = { paddingValues ->
             Column(
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(paddingValues).background(color = Color.LightGray)
             ) {
-                Button(
-                    onClick = {
-                        filterViewModel.toggleFilters()
-                        filterViewModel.loadFilters(null)
-                    },
-                    Modifier.padding(start = 8.dp)
-                ) {
-                    Text("Filtros")
-                }
-
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    items(pets ?: emptyList()) { pet ->
-                        petCard(
-                            pet=pet
-                        )
+                if (selectedPet == null) {
+                    Button(
+                        onClick = {
+                            filterViewModel.toggleFilters()
+                            filterViewModel.loadFilters(null)
+                        },
+                        Modifier.padding(start = 8.dp)
+                    ) {
+                        Text("Filtros")
                     }
 
-                }
-
-                if (showFilters) {
-                    Dialog(
-                        onDismissRequest = {
-                            filterViewModel.toggleFilters()
-                        },
-                        properties = DialogProperties(usePlatformDefaultWidth = false)
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.8f),
-                            contentAlignment = Alignment.TopCenter
-                        ) {
-                            filterBox(
-                                selectedFilters = selectedFilters,
-                                allFilters = filters.associate { it.name to it.options },
-                                onFilterSelected = { filterName, selectedOption ->
-                                    filterViewModel.updateFilter(filterName, selectedOption)
-                                },
-                                onApply = { selected ->
-                                    filterViewModel.applyFilters(selected)
-                                },
-                                onCancel = {
-                                    filterViewModel.cancelFilters()
-                                }
+
+                        items(pets) { pet ->
+                            petCard(
+                                pet = pet,
+                                onClick = {selectedPet = pet}
+
                             )
                         }
+
                     }
+
+                    if (showFilters) {
+                        Dialog(
+                            onDismissRequest = {
+                                filterViewModel.toggleFilters()
+                            },
+                            properties = DialogProperties(usePlatformDefaultWidth = false)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.8f),
+                                contentAlignment = Alignment.TopCenter
+                            ) {
+                                filterBox(
+                                    selectedFilters = selectedFilters,
+                                    allFilters = filters.associate { it.name to it.options },
+                                    onFilterSelected = { filterName, selectedOption ->
+                                        filterViewModel.updateFilter(filterName, selectedOption)
+                                    },
+                                    onApply = { selected ->
+                                        filterViewModel.applyFilters(selected)
+                                    },
+                                    onCancel = {
+                                        filterViewModel.cancelFilters()
+                                    }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    BackHandler {
+                        selectedPet = null
+                    }
+                    PetInfo(selectedPet!!)
                 }
             }
         }
     )
 }
+
 
 
 
@@ -176,10 +194,13 @@ fun BaseScreenPreview() {
     val firebaseDb = FirebaseFirestore.getInstance()
     val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
     val roomPetDataSource = RoomPetDataSource(dao)
-    val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
-    val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
+    val petRepository = PetRepositoryImpl(dao, firebasePetDataSource, roomPetDataSource)
+    val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
     val petViewModel = PetViewModel(syncAndLoadUseCase)
+    val userDao = db.userDao()
+    val sessionManager = SessionManager(userDao)
+    val sessionViewModel= SessionViewModel(sessionManager)
 
-    BaseScreen(filterViewModel = filterViewModel, petViewModel= petViewModel)
+    BaseScreen(filterViewModel = filterViewModel, petViewModel = petViewModel, sessionViewModel = sessionViewModel, onLoginClick = {})
 }
 

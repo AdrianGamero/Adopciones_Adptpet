@@ -1,10 +1,10 @@
 package com.example.adopciones_adoptpet.domain.repository
 
-import com.example.adopciones_adoptpet.domain.model.User
+import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 
 
 interface AuthRepository {
-    suspend fun logIn(email: String, password: String): Result<User>
+    suspend fun logIn(email: String, password: String): Result<LoggedUserEntity>
     suspend fun logOut()
-    fun getCurrentUser(): User?
+    suspend fun getCurrentUser(): LoggedUserEntity?
 }

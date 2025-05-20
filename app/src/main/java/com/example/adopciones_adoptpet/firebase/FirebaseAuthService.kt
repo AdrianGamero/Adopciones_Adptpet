@@ -9,7 +9,9 @@ object FirebaseAuthService {
 
     fun logIn(email: String, password: String, onResult: (Result<FirebaseUser>) -> Unit) {
         auth.signInWithEmailAndPassword(email, password)
-            .addOnSuccessListener { onResult(Result.success(it.user!!)) }
+            .addOnSuccessListener {
+                onResult(Result.success(it.user!!))
+            }
             .addOnFailureListener { onResult(Result.failure(it)) }
     }
 

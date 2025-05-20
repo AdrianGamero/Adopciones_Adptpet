@@ -21,6 +21,8 @@ import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
+import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
+import com.example.adopciones_adoptpet.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
@@ -43,11 +45,15 @@ class MainActivity : ComponentActivity() {
             val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
             val petViewModel = PetViewModel(syncAndLoadUseCase)
 
+            val userDao = db.userDao()
+            val sessionManager = SessionManager(userDao)
+            val sessionViewModel= SessionViewModel(sessionManager)
 
             NavHost(navController = navController, startDestination = "baseScreen") {
                 composable("SignUpScreen") { SignUpScreen(navController = navController) }
                 composable("LogInScreen") { LogInScreen(navController = navController) }
-                composable("baseScreen"){ BaseScreen(filterViewModel,petViewModel)}
+                composable("baseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel,onLoginClick = { navController.navigate("LogInScreen") }
+                )}
 
             }
         }

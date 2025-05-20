@@ -34,7 +34,3 @@ fun passwordField(label: String, value: String, onChange: (String) -> Unit) {
     )
 }
 
-@Composable
-fun button() {
-
-}
