@@ -11,10 +11,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
+import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
+import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
+import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
+import com.example.adopciones_adoptpet.domain.useCase.SignUpUserUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
@@ -22,6 +26,7 @@ import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
+import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
 import com.example.adopciones_adoptpet.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -45,13 +50,18 @@ class MainActivity : ComponentActivity() {
             val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
             val petViewModel = PetViewModel(syncAndLoadUseCase)
 
-            val userDao = db.userDao()
+            val userRemoteDataSource = UserRemoteDataSource()
+            val userDao= db.userDao()
             val sessionManager = SessionManager(userDao)
-            val sessionViewModel= SessionViewModel(sessionManager)
+            val authRepository= AuthRepositoryImpl( sessionManager,userRemoteDataSource)
+            val logInUseCase= LogInUseCase(authRepository)
+            val sessionViewModel= SessionViewModel(logInUseCase)
+            val signUpUserUseCase= SignUpUserUseCase(authRepository)
+            val viewModel= SignUpViewModel(signUpUserUseCase)
 
             NavHost(navController = navController, startDestination = "baseScreen") {
-                composable("SignUpScreen") { SignUpScreen(navController = navController) }
-                composable("LogInScreen") { LogInScreen(navController = navController) }
+                composable("SignUpScreen") { SignUpScreen(navController = navController, viewModel = viewModel) }
+                composable("LogInScreen") { LogInScreen(navController = navController, viewModel = sessionViewModel) }
                 composable("baseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel,onLoginClick = { navController.navigate("LogInScreen") }
                 )}
 

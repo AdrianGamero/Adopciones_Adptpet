@@ -9,5 +9,5 @@ data class LoggedUserEntity(
     val name: String,
     val email: String,
     val role: String,
-    val phone: String? = null
+    val phone: Int = 0
 )

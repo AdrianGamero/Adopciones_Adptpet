@@ -5,7 +5,13 @@ import com.example.adopciones_adoptpet.domain.repository.AuthRepository
 
 
 class LogInUseCase(private val authRepository: AuthRepository) {
-    suspend fun invoke(email: String, password: String): Result<LoggedUserEntity> {
+    suspend fun logIn(email: String, password: String): Result<LoggedUserEntity> {
         return authRepository.logIn(email, password)
+    }
+    suspend fun getSession(): LoggedUserEntity?{
+        return authRepository.getCurrentUser()
+    }
+    suspend fun clearSession(){
+        return authRepository.logOut()
     }
 }

@@ -22,18 +22,51 @@ class AuthRepositoryImpl(private val sessionManager: SessionManager,
                         val uid = firebaseUser.uid
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            val userResult = remoteDataSource.getUser(uid)
-                            userResult.onSuccess { user ->
+                            try {
+                                val user = remoteDataSource.getUser(uid).getOrThrow()
                                 sessionManager.saveSession(user)
                                 cont.resume(Result.success(user))
-                            }.onFailure {
-                                cont.resume(Result.failure(it))
+                            } catch (e: Exception) {
+                                cont.resume(Result.failure(e))
                             }
                         }
                     },
-                    onFailure = { cont.resume(Result.failure(it)) }
+                    onFailure = {
+                        cont.resume(Result.failure(it))
+                    }
                 )
             }
+        }
+    }
+
+    override suspend fun signUpUser(
+        name: String,
+        email: String,
+        password: String,
+        phone: Int
+    ): Result<Unit> = suspendCancellableCoroutine { cont ->
+
+        FirebaseAuthService.signUp(email, password) { result ->
+            result.fold(
+                onSuccess = { firebaseUser ->
+                    val user = LoggedUserEntity(
+                        uid = firebaseUser.uid,
+                        name = name,
+                        email = email,
+                        role = "adopter",
+                        phone = phone
+                    )
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val saveResult = remoteDataSource.saveUser(user)
+                        cont.resume(saveResult)
+                    }
+
+                },
+                onFailure = { error ->
+                    cont.resume(Result.failure(error))
+                }
+            )
         }
     }
 

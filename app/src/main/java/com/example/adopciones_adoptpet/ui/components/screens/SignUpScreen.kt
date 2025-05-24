@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,62 +29,38 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.R
+import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
+import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
+import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
+import com.example.adopciones_adoptpet.domain.useCase.SignUpUserUseCase
+import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
+import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
 import com.example.adopciones_adoptpet.ui.components.views.passwordField
 import com.example.adopciones_adoptpet.ui.components.views.textField
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
-fun signUpUser(
-    name: String,
-    userName: String,
-    lastName: String,
-    eMail: String,
-    address: String,
-    password: String,
-    onSuccess: () -> Unit,
-    onError: (Exception) -> Unit,
-    context: Context,
-    navController: NavController
-) {
-    val user = hashMapOf(
-        "name" to name,
-        "userName" to userName,
-        "lastName" to lastName,
-        "eMail" to eMail,
-        "address" to address,
-        "password" to password
-    )
-    val db = FirebaseFirestore.getInstance()
-    db.collection("user").add(user).addOnSuccessListener {
-        onSuccess()
-    }
-        .addOnFailureListener { e ->
-            onError(e)
-        }
-
-    FirebaseAuth.getInstance().createUserWithEmailAndPassword(eMail, password)
-        .addOnCompleteListener {
-            if (it.isSuccessful) {
-                navController.navigate("LogInScreen")
-            } else {
-                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-}
+import com.example.adopciones_adoptpet.utils.SessionManager
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
     val scaffoldState = rememberScaffoldState()
     var name by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var userName by remember { mutableStateOf("") }
     var eMail by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val context = LocalContext.current
+
+
+    val signUpResult = viewModel.signUpResult
+    LaunchedEffect(signUpResult) {
+        signUpResult?.onSuccess {
+            Toast.makeText(context, "Usuario registrado", Toast.LENGTH_SHORT).show()
+            navController.navigate("LogInScreen")
+        }?.onFailure {
+            Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+        }
+    }
 
 
     Scaffold(
@@ -104,26 +81,21 @@ fun SignUpScreen(navController: NavController) {
             {
 
                 textField("Nombre", name) { name = it }
-                textField("Apellidos", lastName) { lastName = it }
-                textField("Nombre de usuario", userName) { userName = it }
                 textField("E-Mail", eMail) { eMail = it }
+                textField("phone", phone) { phone = it }
                 passwordField("Contraseña", password) { password = it }
-                textField("Dirección", address) { address = it }
 
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
-                        signUpUser(
-                            name, userName, lastName, eMail, address, password,
-                            onSuccess = {
-                                println("Usuario registrado con éxito")
-                            },
-                            onError = {
-                                println("Error al registrar: ${it.message}")
-                            }, context, navController
-                        )
+                        val phoneInt = phone.toIntOrNull()
+                        if (phoneInt != null) {
+                            viewModel.signUp(name, eMail, password, phoneInt)
+                        } else {
+                            Toast.makeText(context, "Número de teléfono inválido", Toast.LENGTH_SHORT).show()
+                        }
                     },
-                    enabled = name.isNotBlank() && password.isNotBlank() && lastName.isNotBlank() && userName.isNotBlank() && eMail.isNotBlank() && address.isNotBlank(),
+                    enabled = name.isNotBlank() && password.isNotBlank() && eMail.isNotBlank() && phone.isNotBlank(),
                     modifier = Modifier
                         .width(200.dp)
                         .align(Alignment.CenterHorizontally)
@@ -140,5 +112,14 @@ fun SignUpScreen(navController: NavController) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SignUpPreView() {
-    SignUpScreen(navController = rememberNavController())
+    val context = LocalContext.current
+
+    val db = AdoptPetDataBase.getDatabase(context)
+    val dao = db.userDao()
+    val userRemoteDataSource = UserRemoteDataSource()
+    val sessionManager = SessionManager(dao)
+    val authRepository= AuthRepositoryImpl( sessionManager,userRemoteDataSource)
+    val signUpUserUseCase= SignUpUserUseCase(authRepository)
+    val viewModel= SignUpViewModel(signUpUserUseCase)
+    SignUpScreen(navController = rememberNavController(),viewModel)
 }

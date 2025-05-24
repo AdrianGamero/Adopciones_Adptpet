@@ -56,6 +56,9 @@ import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
+import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
+import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 import com.example.adopciones_adoptpet.ui.components.views.ProfileCard
 import com.example.adopciones_adoptpet.utils.SessionManager
@@ -190,16 +193,18 @@ fun BaseScreenPreview() {
     val filterRepository = FilterRepositoryImpl(dao)
     val filterUseCase = GetFiltersUseCase(filterRepository)
     val filterViewModel = remember { FilterViewModel(useCase = filterUseCase) }
-
     val firebaseDb = FirebaseFirestore.getInstance()
     val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
     val roomPetDataSource = RoomPetDataSource(dao)
     val petRepository = PetRepositoryImpl(dao, firebasePetDataSource, roomPetDataSource)
     val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
     val petViewModel = PetViewModel(syncAndLoadUseCase)
-    val userDao = db.userDao()
+    val userRemoteDataSource = UserRemoteDataSource()
+    val userDao= db.userDao()
     val sessionManager = SessionManager(userDao)
-    val sessionViewModel= SessionViewModel(sessionManager)
+    val authRepository= AuthRepositoryImpl( sessionManager,userRemoteDataSource)
+    val logInUseCase= LogInUseCase(authRepository)
+    val sessionViewModel= SessionViewModel(logInUseCase)
 
     BaseScreen(filterViewModel = filterViewModel, petViewModel = petViewModel, sessionViewModel = sessionViewModel, onLoginClick = {})
 }

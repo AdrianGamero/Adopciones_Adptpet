@@ -1,31 +1,53 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
-import com.example.adopciones_adoptpet.utils.SessionManager
+import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
+import com.example.adopciones_adoptpet.ui.components.logIn.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SessionViewModel(
-    private val sessionManager: SessionManager
+    val logInUseCase: LogInUseCase
 ) : ViewModel() {
 
 
     private val _loggedUser = MutableStateFlow<LoggedUserEntity?>(null)
     val loggedUser: StateFlow<LoggedUserEntity?> = _loggedUser
 
+    private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
+    val loginState: StateFlow<LoginUiState> = _loginState
     init {
         viewModelScope.launch {
-            _loggedUser.value = sessionManager.getSession()
+            _loggedUser.value = logInUseCase.getSession()
         }
     }
 
     fun clearSession() {
         viewModelScope.launch {
-            sessionManager.clearSession()
+            logInUseCase.clearSession()
             _loggedUser.value = null
+        }
+    }
+
+    fun logIn(email: String, password: String) {
+        viewModelScope.launch {
+            _loginState.value = LoginUiState.Loading
+
+            val result = logInUseCase.logIn(email, password)
+
+            result.fold(
+                onSuccess = {
+                    _loggedUser.value = it
+                    _loginState.value = LoginUiState.Success
+                },
+                onFailure = {
+                    _loginState.value = LoginUiState.Error("Error al iniciar sesión: ${it.message}")
+                }
+            )
         }
     }
 }

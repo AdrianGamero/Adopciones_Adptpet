@@ -15,6 +15,12 @@ object FirebaseAuthService {
             .addOnFailureListener { onResult(Result.failure(it)) }
     }
 
+    fun signUp(email: String, password: String, onResult: (Result<FirebaseUser>) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener { onResult(Result.success(it.user!!)) }
+            .addOnFailureListener { onResult(Result.failure(it)) }
+    }
+
     fun logOut() {
         auth.signOut()
     }
