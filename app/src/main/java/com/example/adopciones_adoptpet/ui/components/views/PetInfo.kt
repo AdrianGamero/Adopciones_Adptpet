@@ -3,6 +3,7 @@ package com.example.adopciones_adoptpet.ui.components.views
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -17,7 +18,7 @@ import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 
 @Composable
 fun PetInfo(pet: PetWithImagesAndBreeds) {
-    Box(Modifier.fillMaxWidth()){
+    Box(Modifier.fillMaxWidth().fillMaxHeight()){
         Column {
             ImageSlider(pet.images,roundedCorners = false)
             Column(modifier = Modifier.padding(start = 8.dp)) {

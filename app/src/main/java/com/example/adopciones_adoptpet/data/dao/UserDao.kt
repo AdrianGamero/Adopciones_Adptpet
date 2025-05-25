@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 
@@ -20,5 +21,14 @@ interface UserDao {
     suspend fun saveExtraData(extraData: ShelterExtraData)
 
     @Query("DELETE FROM logged_user")
-    suspend fun clearSession()
+    suspend fun clearLoggedUser()
+
+    @Query("DELETE FROM shelter_extra")
+    suspend fun clearShelterExtraData()
+
+    @Transaction
+    suspend fun clearSession(){
+        clearLoggedUser()
+        clearShelterExtraData()
+    }
 }

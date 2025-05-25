@@ -23,6 +23,7 @@ import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
+import com.example.adopciones_adoptpet.ui.components.screens.ProfileInfoScreen
 import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
@@ -59,12 +60,11 @@ class MainActivity : ComponentActivity() {
             val signUpUserUseCase= SignUpUserUseCase(authRepository)
             val viewModel= SignUpViewModel(signUpUserUseCase)
 
-            NavHost(navController = navController, startDestination = "baseScreen") {
+            NavHost(navController = navController, startDestination = "BaseScreen") {
                 composable("SignUpScreen") { SignUpScreen(navController = navController, viewModel = viewModel) }
                 composable("LogInScreen") { LogInScreen(navController = navController, viewModel = sessionViewModel) }
-                composable("baseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel,onLoginClick = { navController.navigate("LogInScreen") }
-                )}
-
+                composable("BaseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel, navController)}
+                composable("ProfileInfoScreen"){ ProfileInfoScreen(sessionViewModel, navController)}
             }
         }
     }

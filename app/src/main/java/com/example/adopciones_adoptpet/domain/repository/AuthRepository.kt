@@ -2,10 +2,11 @@ package com.example.adopciones_adoptpet.domain.repository
 
 import android.provider.ContactsContract.CommonDataKinds.Website
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
+import com.example.adopciones_adoptpet.domain.model.UserWithExtraInfo
 
 
 interface AuthRepository {
-    suspend fun logIn(email: String, password: String): Result<LoggedUserEntity>
+    suspend fun logIn(email: String, password: String): Result<UserWithExtraInfo>
     suspend fun logOut()
     suspend fun getCurrentUser(): LoggedUserEntity?
     suspend fun signUpUserAdopter(

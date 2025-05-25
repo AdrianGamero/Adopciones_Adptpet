@@ -18,7 +18,6 @@ class SessionManager(private val userDao: UserDao){
     }
 
     suspend fun clearSession() {
-
         userDao.clearSession()
     }
 

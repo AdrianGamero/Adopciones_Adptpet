@@ -4,6 +4,7 @@ package com.example.adopciones_adoptpet.ui.components.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
+import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.logIn.LoginUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,10 @@ class SessionViewModel(
 
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginState: StateFlow<LoginUiState> = _loginState
+
+    private val _shelterExtraData = MutableStateFlow<ShelterExtraData?>(null)
+    val shelterExtraData: StateFlow<ShelterExtraData?> = _shelterExtraData
+
     init {
         viewModelScope.launch {
             _loggedUser.value = logInUseCase.getSession()
@@ -30,6 +35,8 @@ class SessionViewModel(
         viewModelScope.launch {
             logInUseCase.clearSession()
             _loggedUser.value = null
+            _shelterExtraData.value=null
+            _loginState.value = LoginUiState.Idle
         }
     }
 
@@ -40,9 +47,11 @@ class SessionViewModel(
             val result = logInUseCase.logIn(email, password)
 
             result.fold(
-                onSuccess = {
-                    _loggedUser.value = it
+                onSuccess = { userWithExtra ->
+                    _loggedUser.value = userWithExtra.user
+                    _shelterExtraData.value = userWithExtra.shelterExtraData
                     _loginState.value = LoginUiState.Success
+
                 },
                 onFailure = {
                     _loginState.value = LoginUiState.Error("Error al iniciar sesión: ${it.message}")

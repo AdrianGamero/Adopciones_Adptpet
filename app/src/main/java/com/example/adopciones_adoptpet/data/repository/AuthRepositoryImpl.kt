@@ -3,6 +3,7 @@ package com.example.adopciones_adoptpet.data.repository
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
+import com.example.adopciones_adoptpet.domain.model.UserWithExtraInfo
 import com.example.adopciones_adoptpet.domain.repository.AuthRepository
 import com.example.adopciones_adoptpet.firebase.FirebaseAuthService
 import com.example.adopciones_adoptpet.utils.SessionManager
@@ -15,7 +16,7 @@ import kotlin.coroutines.resume
 class AuthRepositoryImpl(private val sessionManager: SessionManager,
                          private val remoteDataSource: UserRemoteDataSource
 ) : AuthRepository {
-    override suspend fun logIn(email: String, password: String): Result<LoggedUserEntity> {
+    override suspend fun logIn(email: String, password: String): Result<UserWithExtraInfo> {
         return suspendCancellableCoroutine { cont ->
             FirebaseAuthService.logIn(email, password) { result ->
                 result.fold(
@@ -26,12 +27,13 @@ class AuthRepositoryImpl(private val sessionManager: SessionManager,
                             try {
                                 val user = remoteDataSource.getUser(uid).getOrThrow()
                                 sessionManager.saveSession(user)
-                                if(user.role.equals("shelter")){
-                                    val shelterExtraData = remoteDataSource.getShelterExtra(uid).getOrThrow()
-                                    sessionManager.saveExtraData(shelterExtraData)
 
-                                }
-                                cont.resume(Result.success(user))
+                                val extraData = if (user.role == "shelter") {
+                                    val data = remoteDataSource.getShelterExtra(uid).getOrThrow()
+                                    sessionManager.saveExtraData(data)
+                                    data
+                                } else null
+                                cont.resume(Result.success(UserWithExtraInfo(user,extraData)))
                             } catch (e: Exception) {
                                 cont.resume(Result.failure(e))
                             }

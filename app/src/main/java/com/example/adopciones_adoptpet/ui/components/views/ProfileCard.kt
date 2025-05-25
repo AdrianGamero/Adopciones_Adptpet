@@ -1,6 +1,7 @@
 package com.example.adopciones_adoptpet.ui.components.views
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,14 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 
 @Composable
-fun ProfileCard(viewModel: SessionViewModel, onLoginClick: () -> Unit
+fun ProfileCard(
+    viewModel: SessionViewModel,
+    onLoginClick: () -> Unit,
+    onProfileClick: () -> Unit
 ){
     val user by viewModel.loggedUser.collectAsState()
 
-    Box(Modifier.fillMaxWidth().fillMaxHeight(0.1f)){
+    Box(Modifier.fillMaxWidth().fillMaxHeight(0.1f).clickable(enabled = user != null){onProfileClick()}){
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.fillMaxHeight(0.9f)
                 .aspectRatio(1f)
@@ -54,7 +59,7 @@ fun ProfileCard(viewModel: SessionViewModel, onLoginClick: () -> Unit
                     Text("iniciar Sesión")
                 }
             }else{
-                Text(user!!.name)
+                Text(user!!.name, Modifier.padding(start = 16.dp), fontSize = 20.sp)
             }
         }
     }

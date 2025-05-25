@@ -56,6 +56,8 @@ import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
@@ -66,7 +68,7 @@ import com.example.adopciones_adoptpet.utils.SessionManager
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, sessionViewModel: SessionViewModel,onLoginClick: () -> Unit
+fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, sessionViewModel: SessionViewModel, navController: NavController
 
 ) {
     val scaffoldState = rememberScaffoldState()
@@ -99,10 +101,14 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(250.dp)
+                    .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                ProfileCard(sessionViewModel,onLoginClick = onLoginClick)
+                ProfileCard(sessionViewModel,
+                    onLoginClick = {navController.navigate("LogInScreen")},
+                    onProfileClick = {
+                        navController.navigate("ProfileInfoScreen")
+                    })
                 Divider()
                 Text("Opción 2", modifier = Modifier.padding(vertical = 8.dp))
                 Divider()
@@ -134,7 +140,6 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                             petCard(
                                 pet = pet,
                                 onClick = {selectedPet = pet}
-
                             )
                         }
 
@@ -206,6 +211,6 @@ fun BaseScreenPreview() {
     val logInUseCase= LogInUseCase(authRepository)
     val sessionViewModel= SessionViewModel(logInUseCase)
 
-    BaseScreen(filterViewModel = filterViewModel, petViewModel = petViewModel, sessionViewModel = sessionViewModel, onLoginClick = {})
+    BaseScreen(filterViewModel = filterViewModel, petViewModel = petViewModel, sessionViewModel = sessionViewModel, rememberNavController())
 }
 
