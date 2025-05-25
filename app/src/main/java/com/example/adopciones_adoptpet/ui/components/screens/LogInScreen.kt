@@ -53,9 +53,8 @@ fun LogInScreen(navController: NavController, viewModel: SessionViewModel) {
 
     LaunchedEffect(loginState) {
         when (loginState) {
-            is LoginUiState.Success -> navController.navigate("BaseScreen") {
-                popUpTo("LoginScreen") { inclusive = true }
-            }
+            is LoginUiState.Success -> navController.navigate("BaseScreen")
+
             is LoginUiState.Error -> {
                 val error = (loginState as LoginUiState.Error).message
                 Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
@@ -91,10 +90,7 @@ fun LogInScreen(navController: NavController, viewModel: SessionViewModel) {
                     .padding(it)
                     .padding(top = 100.dp),
             )
-
             {
-
-
                 textField("Email", eMail) { eMail = it }
                 passwordField("Password", password) { password = it }
                 Spacer(modifier = Modifier.height(32.dp))

@@ -13,11 +13,11 @@ import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.RequestEntity
-import com.example.adopciones_adoptpet.domain.model.ShelterEntity
+import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 
 @Database(
-    entities = [PetEntity::class, RequestEntity::class, ShelterEntity::class, BreedEntity::class, PetImageEntity::class, LoggedUserEntity::class],
-    version = 6,
+    entities = [PetEntity::class, RequestEntity::class, BreedEntity::class, PetImageEntity::class, LoggedUserEntity::class,ShelterExtraData::class],
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

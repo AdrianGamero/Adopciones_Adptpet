@@ -10,15 +10,10 @@ import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetType
-import com.example.adopciones_adoptpet.domain.model.PetWithImages
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PetWithImagesDao {
-
-    @Transaction
-    @Query("SELECT * FROM pets WHERE petId = :petId")
-    suspend fun getPetWithImages(petId: String): PetWithImages
 
     @Query("SELECT name FROM breeds WHERE :petType IS NULL OR type= :petType")
     suspend fun getAllBreedsNames(petType: PetType?): List<String>

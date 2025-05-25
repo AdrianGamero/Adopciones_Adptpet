@@ -16,9 +16,18 @@ class SignUpViewModel(
     var signUpResult by mutableStateOf<Result<Unit>?>(null)
         private set
 
-    fun signUp(name: String, email: String, password: String, phone: Int) {
+    fun signUpAdopter(name: String, email: String, password: String, phone: Int, role:String) {
         viewModelScope.launch {
-            signUpResult = signUpUserUseCase(name, email, password, phone)
+            signUpResult = signUpUserUseCase.signUpAdopter(name, email, password, phone,role)
+
         }
+    }
+    fun signUpShelter(name: String, email: String, password: String, phone: Int, role:String,address: String,city:String,website: String) {
+        viewModelScope.launch {
+            signUpResult = signUpUserUseCase.signUpShelter(name, email, password, phone,role, address,city,website)
+        }
+    }
+    fun clearSignUpResult() {
+        signUpResult = null
     }
 }

@@ -1,12 +1,8 @@
 package com.example.adopciones_adoptpet.data.dataSource
 
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
-import androidx.navigation.NavController
 import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
+import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
@@ -28,10 +24,44 @@ class UserRemoteDataSource(private val firestore: FirebaseFirestore = Firebase.f
             Result.failure(e)
         }
     }
+    suspend fun getShelterExtra(uid:String): Result<ShelterExtraData>{
+        return try {
+            val doc = firestore.collection("shelter").document(uid).get().await()
+            val shelterExtra= ShelterExtraData(
+                uid= uid,
+                address = doc.getString("address") ?: "",
+                city = doc.getString("city") ?: "",
+                website = doc.getString("website") ?: "",
+            )
+            Result.success(shelterExtra)
+
+        }catch (e: Exception){
+            Result.failure(e)
+        }
+    }
 
     suspend fun saveUser(user: LoggedUserEntity): Result<Unit> {
         return try {
-            firestore.collection("user").document(user.uid).set(user).await()
+            val data = mapOf(
+                "name" to user.name,
+                "email" to user.email,
+                "role" to user.role,
+                "phone" to user.phone
+            )
+            firestore.collection("user").document(user.uid).set(data).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    suspend fun saveShelterExtra(extraData: ShelterExtraData): Result<Unit> {
+        return try {
+            val data = mapOf(
+                "address" to extraData.address,
+                "city" to extraData.city,
+                "website" to extraData.website
+            )
+            firestore.collection("shelter").document(extraData.uid).set(data).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

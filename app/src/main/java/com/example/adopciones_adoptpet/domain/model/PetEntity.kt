@@ -24,6 +24,4 @@ data class PetEntity(
     val size: String="",
     val breedId: Int=0,
     val shelterId: Int=0,
-    val lastUpdate: Long=0,
-    val synchronized: Boolean = false
 )
