@@ -8,5 +8,6 @@ data class PetWithImagesAndBreeds(
     val age: Int,
     val breedName: String,
     val size: String,
-    val gender: String
+    val gender: String,
+    val petType: PetType
 )

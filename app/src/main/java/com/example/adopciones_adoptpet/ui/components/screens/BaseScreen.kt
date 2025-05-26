@@ -166,6 +166,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                                     },
                                     onApply = { selected ->
                                         filterViewModel.applyFilters(selected)
+                                        petViewModel.applyFilters(selected)
                                     },
                                     onCancel = {
                                         filterViewModel.cancelFilters()

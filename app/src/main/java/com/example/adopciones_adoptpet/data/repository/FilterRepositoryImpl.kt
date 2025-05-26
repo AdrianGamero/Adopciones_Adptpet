@@ -15,9 +15,9 @@ class FilterRepositoryImpl(private val breedDao: PetWithImagesDao) : FilterRepos
                 "Edad",
                 listOf("<1 año", "1-2 años", "2-5 años", "5-10 años", ">10 años", "Todos")
             ),
-            Filter("Genero", listOf("Macho", "Hembra")),
+            Filter("Genero", listOf("Macho", "Hembra", "Todos")),
             Filter("Distancia", listOf("<10 km", "<30 km", "<50 km", "<100km", ">100km")),
-            Filter("Raza", breedOptions.ifEmpty { listOf("Sin razas disponibles") })
+            Filter("Raza", listOf("Todos")+ breedOptions.ifEmpty { listOf("Sin razas disponibles") })
         )
     }
 

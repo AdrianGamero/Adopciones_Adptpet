@@ -4,13 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewModelScope
+import com.example.adopciones_adoptpet.domain.model.PetType
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -19,8 +23,19 @@ class PetViewModel(
     private val useCase: SyncAndLoadUseCase
 ) : ViewModel() {
 
-    private val _pets = MutableStateFlow<List<PetWithImagesAndBreeds>>(emptyList())
-    val pets: StateFlow<List<PetWithImagesAndBreeds>> = _pets
+    private val _allPets = MutableStateFlow<List<PetWithImagesAndBreeds>>(emptyList())
+    private val _filters = MutableStateFlow<Map<String, String>>(emptyMap())
+
+    val pets: StateFlow<List<PetWithImagesAndBreeds>> = combine(
+        _allPets,
+        _filters
+    ) { allPets, filters ->
+        applyFilters(allPets, filters)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
 
     private var syncJob: Job? = null
     private var hasStarted = false
@@ -43,7 +58,7 @@ class PetViewModel(
 
     private suspend fun observePets() {
         useCase.invoke().collect { petList ->
-            _pets.value = petList
+            _allPets.value = petList
         }
     }
 
@@ -71,5 +86,37 @@ class PetViewModel(
     override fun onCleared() {
         super.onCleared()
         syncJob?.cancel()
+    }
+
+    fun applyFilters(filters: Map<String, String>) {
+        _filters.value = filters
+    }
+
+    private fun applyFilters(
+        allPets: List<PetWithImagesAndBreeds>,
+        filters: Map<String, String>
+    ): List<PetWithImagesAndBreeds> {
+        return allPets.filter { pet ->
+            filters.all { (key, value) ->
+                when (key) {
+                    "Tipo" -> value == "Todos" || pet.petType.displayName.equals(value, ignoreCase = true)
+                    "Tamaño" -> value == "Todos" || pet.size.equals(value, ignoreCase = true)
+                    "Edad" -> {
+                        when (value) {
+                            "<1 año" -> pet.age < 1
+                            "1-2 años" -> pet.age in 1..2
+                            "2-5 años" -> pet.age in 2..5
+                            "5-10 años" -> pet.age in 5..10
+                            ">10 años" -> pet.age > 10
+                            "Todos" -> true
+                            else -> true
+                        }
+                    }
+                    "Genero" -> value == "Todos" || pet.gender.equals(value, ignoreCase = true)
+                    "Raza" -> value == "Sin razas disponibles" || pet.breedName == value
+                    else -> true
+                }
+            }
+        }
     }
 }

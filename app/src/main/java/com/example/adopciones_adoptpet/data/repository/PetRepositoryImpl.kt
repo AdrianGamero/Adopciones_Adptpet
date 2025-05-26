@@ -36,6 +36,7 @@ class PetRepositoryImpl(
         ) { pets, breeds, images ->
             pets.map { pet ->
                 val breedName = breeds.find { it.breedId == pet.breedId }?.name ?: ""
+                val petType = breeds.find { it.breedId  ==pet.breedId}?.type!!
                 val petImages = images.filter { it.petId == pet.petId }.map { it.url }
                 val convertedImages = petImages.map { Base64ToImage.decodeBase64(it) }
 
@@ -45,7 +46,8 @@ class PetRepositoryImpl(
                     age = pet.age,
                     breedName = breedName,
                     size = pet.size,
-                    gender = pet.gender
+                    gender = pet.gender,
+                    petType = petType
                 )
             }
         }

@@ -9,6 +9,7 @@ class Converters {
     @TypeConverter
     fun fromTypePet(value: PetType): String = value.name
 
+    @TypeConverter
     fun toPetType(value: String): PetType = PetType.valueOf(value)
 
     @TypeConverter
