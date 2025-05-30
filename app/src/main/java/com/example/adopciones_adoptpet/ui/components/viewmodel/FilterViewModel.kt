@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.Filter
-import com.example.adopciones_adoptpet.domain.model.PetType
+import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import kotlinx.coroutines.launch
 

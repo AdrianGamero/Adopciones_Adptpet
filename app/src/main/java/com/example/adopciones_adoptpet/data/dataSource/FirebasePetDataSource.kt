@@ -1,12 +1,15 @@
 package com.example.adopciones_adoptpet.data.dataSource
 
+import com.example.adopciones_adoptpet.converters.Converters.toPetGender
+import com.example.adopciones_adoptpet.converters.Converters.toPetSize
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
-import com.example.adopciones_adoptpet.domain.model.PetType
+
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
+import com.example.adopciones_adoptpet.converters.Converters.toPetType
 
 class FirebasePetDataSource (
         private val db: FirebaseFirestore
@@ -18,19 +21,28 @@ class FirebasePetDataSource (
         observePets()
     }
 
-    suspend fun getAllPets(): List<PetEntity>  {
-            val petList = mutableListOf<PetEntity>()
-            val pet = db.collection("pets").get().await()
+    suspend fun getAllPets(): List<PetEntity> {
+        val petList = mutableListOf<PetEntity>()
+        val petDocs = db.collection("pets").get().await()
 
-            for (doc in pet.documents) {
-                val petId = doc.id.toInt()
-                val petData = doc.toObject(PetEntity::class.java)?.copy(petId = petId)
-                if (petData != null) {
-                    petList.add(petData)
-                }
-            }
-            return petList
+        for (doc in petDocs.documents) {
+            val petId = doc.id.toInt()
+            val data = doc.data ?: continue
+
+            val pet = PetEntity(
+                petId = petId,
+                name = data["name"] as? String ?: "",
+                age = (data["age"] as? Long)?.toInt() ?: 0,
+                gender = toPetGender(doc.getString("gender")?: "Male"),
+                size = toPetSize(doc.getString("size")?: "Medium"),
+                breedId = (data["breedId"] as? Long)?.toInt() ?: 0,
+                shelterId = (data["shelterId"] as? Long)?.toInt() ?: 0,
+            )
+
+            petList.add(pet)
         }
+        return petList
+    }
 
     suspend fun getAllImages(): List<PetImageEntity>{
         val allImages = mutableListOf<PetImageEntity>()
@@ -65,7 +77,7 @@ class FirebasePetDataSource (
                 BreedEntity(
                     breedId = doc.id.toInt(),
                     name = doc.getString("name") ?: "",
-                    type = PetType.valueOf(doc.getString("type")?.uppercase() ?: "DOG")
+                    type = toPetType(doc.getString("type") ?: "Perro")
                 )
             }
     }

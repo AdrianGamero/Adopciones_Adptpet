@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
@@ -56,16 +55,26 @@ import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 import com.example.adopciones_adoptpet.ui.components.views.ProfileCard
 import com.example.adopciones_adoptpet.utils.SessionManager
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, sessionViewModel: SessionViewModel, navController: NavController
@@ -73,6 +82,8 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
 ) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+    val user by sessionViewModel.loggedUser.collectAsState()
+
 
     val filters = filterViewModel.filters.value
     val selectedFilters = filterViewModel.selectedFilters.value
@@ -80,6 +91,18 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
     val pets by petViewModel.pets.collectAsStateWithLifecycle()
     var selectedPet by remember { mutableStateOf<PetWithImagesAndBreeds?>(null) }
 
+    val refreshing = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing.value,
+        onRefresh = {
+            refreshing.value = true
+            coroutineScope.launch {
+                petViewModel.syncPets()
+                refreshing.value = false
+            }
+        }
+    )
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -120,29 +143,56 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                 modifier = Modifier.padding(paddingValues).background(color = Color.LightGray)
             ) {
                 if (selectedPet == null) {
-                    Button(
-                        onClick = {
-                            filterViewModel.toggleFilters()
-                            filterViewModel.loadFilters(null)
-                        },
-                        Modifier.padding(start = 8.dp)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Filtros")
+                        Button(
+                            onClick = {
+                                filterViewModel.toggleFilters()
+                                filterViewModel.loadFilters(null)
+                            },
+                            Modifier.padding(start = 8.dp)
+                        ) {
+                            Text("Filtros")
+                        }
+                        if (user?.role.equals("shelter")) {
+                            Button(
+                                onClick = {
+                                    navController.navigate("AddPetsScreen")
+                                },
+                                Modifier.padding(end = 8.dp)
+                            ) {
+                                Text("+ Añadir")
+                            }
+                        }
                     }
 
-                    LazyColumn(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
 
-                        items(pets) { pet ->
-                            petCard(
-                                pet = pet,
-                                onClick = {selectedPet = pet}
-                            )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pullRefresh(pullRefreshState)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(bottom = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(pets) { pet ->
+                                petCard(
+                                    pet = pet,
+                                    onClick = { selectedPet = pet }
+                                )
+                            }
                         }
 
+                        PullRefreshIndicator(
+                            refreshing = refreshing.value,
+                            state = pullRefreshState,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
                     }
 
                     if (showFilters) {
@@ -202,9 +252,10 @@ fun BaseScreenPreview() {
     val firebaseDb = FirebaseFirestore.getInstance()
     val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
     val roomPetDataSource = RoomPetDataSource(dao)
-    val petRepository = PetRepositoryImpl(dao, firebasePetDataSource, roomPetDataSource)
+    val petRepository = PetRepositoryImpl( firebasePetDataSource, roomPetDataSource)
     val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
-    val petViewModel = PetViewModel(syncAndLoadUseCase)
+    val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
+    val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase)
     val userRemoteDataSource = UserRemoteDataSource()
     val userDao= db.userDao()
     val sessionManager = SessionManager(userDao)

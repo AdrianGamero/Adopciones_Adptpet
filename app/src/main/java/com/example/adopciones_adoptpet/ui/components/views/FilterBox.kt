@@ -46,13 +46,14 @@ fun filterBox(
                 val selectedOption = selectedFilters[filterName] ?: ""
                 Spacer(modifier = Modifier.height(8.dp))
 
-                filterMenu(label = filterName,
+                selectMenu(label = filterName,
                     options = options,
                     selectedOption = selectedOption,
                     onOptionSelected = { selected ->
                         onFilterSelected(filterName, selected)
-
-                    })
+                    },
+                    Modifier.fillMaxWidth()
+                    )
             }
 
             Row(

@@ -7,7 +7,7 @@ import androidx.room.Query
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
-import com.example.adopciones_adoptpet.domain.model.PetType
+import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import kotlinx.coroutines.flow.Flow
 
 @Dao

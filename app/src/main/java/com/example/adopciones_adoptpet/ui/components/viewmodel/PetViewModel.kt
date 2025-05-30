@@ -1,11 +1,16 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewModelScope
-import com.example.adopciones_adoptpet.domain.model.PetType
+import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
+import com.example.adopciones_adoptpet.domain.model.enums.PetAgeRange
+import com.example.adopciones_adoptpet.domain.model.enums.PetType
+import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,8 +25,12 @@ import kotlinx.coroutines.launch
 
 
 class PetViewModel(
-    private val useCase: SyncAndLoadUseCase
+    private val useCase: SyncAndLoadUseCase,
+    private val getBreedsByTypeUseCase: GetBreedsByTypeUseCase
 ) : ViewModel() {
+
+    private val _breeds = mutableStateOf<List<BreedEntity>>(emptyList())
+    val breeds: State<List<BreedEntity>> get() = _breeds
 
     private val _allPets = MutableStateFlow<List<PetWithImagesAndBreeds>>(emptyList())
     private val _filters = MutableStateFlow<Map<String, String>>(emptyMap())
@@ -100,23 +109,22 @@ class PetViewModel(
             filters.all { (key, value) ->
                 when (key) {
                     "Tipo" -> value == "Todos" || pet.petType.displayName.equals(value, ignoreCase = true)
-                    "Tamaño" -> value == "Todos" || pet.size.equals(value, ignoreCase = true)
+                    "Tamaño" -> value == "Todos" || pet.size.displayName.equals(value, ignoreCase = true)
                     "Edad" -> {
-                        when (value) {
-                            "<1 año" -> pet.age < 1
-                            "1-2 años" -> pet.age in 1..2
-                            "2-5 años" -> pet.age in 2..5
-                            "5-10 años" -> pet.age in 5..10
-                            ">10 años" -> pet.age > 10
-                            "Todos" -> true
-                            else -> true
-                        }
+                        val PetAgeRange = PetAgeRange.values().find { it.label == value }
+                        PetAgeRange?.matches(pet.age) ?: true
                     }
-                    "Genero" -> value == "Todos" || pet.gender.equals(value, ignoreCase = true)
+
+                    "Genero" -> value == "Todos" || pet.gender.displayName.equals(value, ignoreCase = true)
                     "Raza" -> value == "Sin razas disponibles" || pet.breedName == value
                     else -> true
                 }
             }
+        }
+    }
+    fun loadBreeds(type: PetType) {
+        viewModelScope.launch {
+            _breeds.value = getBreedsByTypeUseCase.invoke(type)
         }
     }
 }

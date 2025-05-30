@@ -2,7 +2,7 @@ package com.example.adopciones_adoptpet.data.repository
 
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.domain.model.Filter
-import com.example.adopciones_adoptpet.domain.model.PetType
+import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.FilterRepository
 
 class FilterRepositoryImpl(private val breedDao: PetWithImagesDao) : FilterRepository {

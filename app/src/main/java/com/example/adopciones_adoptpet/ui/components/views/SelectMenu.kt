@@ -20,18 +20,20 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable()
-fun filterMenu(
+fun selectMenu(
     label: String,
     options: List<String>,
     selectedOption: String,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+
 ) {
 
     var expanded by remember { mutableStateOf(false) }
 
 
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(modifier) {
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
@@ -70,7 +72,7 @@ fun filterMenu(
 @Composable
 fun filterMenuPreview() {
     var selectedOption by remember { mutableStateOf("1") }
-    filterMenu(
+    selectMenu(
         "filtro",
         listOf("1", "2", "3"),
         selectedOption,

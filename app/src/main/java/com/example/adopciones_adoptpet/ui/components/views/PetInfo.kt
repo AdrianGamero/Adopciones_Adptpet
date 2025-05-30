@@ -31,9 +31,9 @@ fun PetInfo(pet: PetWithImagesAndBreeds) {
                 )
                 Text("Edad: ${pet.age}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text("Raza: ${pet.breedName}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
-                Text("Sexo: ${pet.gender}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Sexo: ${pet.gender.displayName}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text(
-                    "Tamaño: ${pet.size}",
+                    "Tamaño: ${pet.size.displayName}",
                     fontSize = 17.sp,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 )

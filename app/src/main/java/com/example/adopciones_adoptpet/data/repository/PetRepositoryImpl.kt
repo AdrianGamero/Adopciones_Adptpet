@@ -5,9 +5,11 @@ import android.util.Log
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
+import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
+import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
 import com.example.adopciones_adoptpet.utils.Base64ToImage
 import kotlinx.coroutines.Dispatchers
@@ -17,15 +19,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 class PetRepositoryImpl(
-    private val dao: PetWithImagesDao,
     private val firebasePetDataSource: FirebasePetDataSource,
     private val roomPetDataSource: RoomPetDataSource
 ) : PetRepository {
 
-
-    override suspend fun getPetsByBreed(breedId: String): List<PetEntity> {
-        return dao.getPetsByBreed(breedId)
+    override suspend fun getBreedsByType(type: PetType): List<BreedEntity> {
+        return roomPetDataSource.getAllBreeds().first().filter { it.type == type }
     }
+
+
+
 
     @SuppressLint("SuspiciousIndentation")
     override suspend fun getPetsWithImagesAndBreeds(): Flow<List<PetWithImagesAndBreeds>> {
@@ -37,6 +40,8 @@ class PetRepositoryImpl(
             pets.map { pet ->
                 val breedName = breeds.find { it.breedId == pet.breedId }?.name ?: ""
                 val petType = breeds.find { it.breedId  ==pet.breedId}?.type!!
+                val gender = pet.gender
+                val size = pet.size
                 val petImages = images.filter { it.petId == pet.petId }.map { it.url }
                 val convertedImages = petImages.map { Base64ToImage.decodeBase64(it) }
 
@@ -45,8 +50,8 @@ class PetRepositoryImpl(
                     images = convertedImages,
                     age = pet.age,
                     breedName = breedName,
-                    size = pet.size,
-                    gender = pet.gender,
+                    size = size,
+                    gender = gender,
                     petType = petType
                 )
             }

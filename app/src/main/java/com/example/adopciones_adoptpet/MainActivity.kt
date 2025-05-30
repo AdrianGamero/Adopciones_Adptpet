@@ -16,10 +16,12 @@ import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SignUpUserUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
+import com.example.adopciones_adoptpet.ui.components.screens.AddPetsScreen
 import com.example.adopciones_adoptpet.ui.components.screens.LogInScreen
 import com.example.adopciones_adoptpet.ui.components.screens.SignUpScreen
 import com.example.adopciones_adoptpet.ui.components.screens.BaseScreen
@@ -47,9 +49,10 @@ class MainActivity : ComponentActivity() {
             val firebaseDb = FirebaseFirestore.getInstance()
             val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
             val roomPetDataSource = RoomPetDataSource(dao)
-            val petRepository= PetRepositoryImpl(dao,firebasePetDataSource,roomPetDataSource)
+            val petRepository= PetRepositoryImpl(firebasePetDataSource,roomPetDataSource)
             val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
-            val petViewModel = PetViewModel(syncAndLoadUseCase)
+            val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
+            val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase)
 
             val userRemoteDataSource = UserRemoteDataSource()
             val userDao= db.userDao()
@@ -58,13 +61,14 @@ class MainActivity : ComponentActivity() {
             val logInUseCase= LogInUseCase(authRepository)
             val sessionViewModel= SessionViewModel(logInUseCase)
             val signUpUserUseCase= SignUpUserUseCase(authRepository)
-            val viewModel= SignUpViewModel(signUpUserUseCase)
+            val signUpViewModel= SignUpViewModel(signUpUserUseCase)
 
             NavHost(navController = navController, startDestination = "BaseScreen") {
-                composable("SignUpScreen") { SignUpScreen(navController = navController, viewModel = viewModel) }
+                composable("SignUpScreen") { SignUpScreen(navController = navController, viewModel = signUpViewModel) }
                 composable("LogInScreen") { LogInScreen(navController = navController, viewModel = sessionViewModel) }
                 composable("BaseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel, navController)}
                 composable("ProfileInfoScreen"){ ProfileInfoScreen(sessionViewModel, navController)}
+                composable("AddPetsScreen"){AddPetsScreen(petViewModel)}
             }
         }
     }
