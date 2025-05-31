@@ -16,6 +16,7 @@ import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.FilterRepositoryImpl
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetFiltersUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
@@ -32,7 +33,6 @@ import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
 import com.example.adopciones_adoptpet.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +52,8 @@ class MainActivity : ComponentActivity() {
             val petRepository= PetRepositoryImpl(firebasePetDataSource,roomPetDataSource)
             val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
             val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
-            val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase)
+            val addPetUseCase = AddPetUseCase(petRepository)
+            val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase)
 
             val userRemoteDataSource = UserRemoteDataSource()
             val userDao= db.userDao()

@@ -10,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
 import com.example.adopciones_adoptpet.converters.Converters.toPetType
+import com.google.firebase.firestore.SetOptions
 
 class FirebasePetDataSource (
         private val db: FirebaseFirestore
@@ -26,7 +27,7 @@ class FirebasePetDataSource (
         val petDocs = db.collection("pets").get().await()
 
         for (doc in petDocs.documents) {
-            val petId = doc.id.toInt()
+            val petId = doc.id
             val data = doc.data ?: continue
 
             val pet = PetEntity(
@@ -35,8 +36,8 @@ class FirebasePetDataSource (
                 age = (data["age"] as? Long)?.toInt() ?: 0,
                 gender = toPetGender(doc.getString("gender")?: "Male"),
                 size = toPetSize(doc.getString("size")?: "Medium"),
-                breedId = (data["breedId"] as? Long)?.toInt() ?: 0,
-                shelterId = (data["shelterId"] as? Long)?.toInt() ?: 0,
+                breedId = data["breedId"] as? String ?: "",
+                shelterId = data["shelterId"] as? String ?: ""
             )
 
             petList.add(pet)
@@ -50,7 +51,7 @@ class FirebasePetDataSource (
         val pets = db.collection("pets").get().await()
 
         for (pet in pets.documents) {
-            val petId = pet.id.toInt()
+            val petId = pet.id
 
             val images = db.collection("pets")
                 .document(petId.toString())
@@ -75,7 +76,7 @@ class FirebasePetDataSource (
             .await()
             .map { doc ->
                 BreedEntity(
-                    breedId = doc.id.toInt(),
+                    breedId = doc.id,
                     name = doc.getString("name") ?: "",
                     type = toPetType(doc.getString("type") ?: "Perro")
                 )
@@ -94,6 +95,49 @@ class FirebasePetDataSource (
 
     fun resetRemoteChangeFlag() {
         hasRemoteChanges.value = false
+    }
+
+    suspend fun insertPetWithImages(
+        pet: PetEntity,
+        breed: BreedEntity,
+        images: List<PetImageEntity>
+    ) {
+        val breedDoc = db.collection("breeds").document(breed.breedId)
+        breedDoc.set(
+            mapOf(
+                "name" to breed.name,
+                "type" to breed.type.name
+            ),
+            SetOptions.merge()
+        )
+
+        val petDoc = db.collection("pets").document(pet.petId)
+        petDoc.set(
+            mapOf(
+                "name" to pet.name,
+                "age" to pet.age,
+                "gender" to pet.gender.name,
+                "size" to pet.size.name,
+                "breedId" to pet.breedId,
+                "shelterId" to pet.shelterId,
+                "type" to breed.type.name
+            )
+        )
+
+        val imagesCollection = petDoc.collection("images")
+        images.forEach { image ->
+            imagesCollection.document(image.imageId).set(mapOf("url" to image.url))
+        }
+    }
+
+    suspend fun insertBreed(breed: BreedEntity) {
+        db.collection("breeds").document(breed.breedId).set(
+            mapOf(
+                "name" to breed.name,
+                "type" to breed.type.name
+            ),
+            SetOptions.merge()
+        )
     }
 }
 

@@ -6,7 +6,7 @@ import com.example.adopciones_adoptpet.domain.model.enums.PetType
 
 @Entity(tableName = "breeds")
 data class BreedEntity(
-    @PrimaryKey val breedId: Int=0,
+    @PrimaryKey val breedId: String="",
     val name: String="",
     val type: PetType
 )

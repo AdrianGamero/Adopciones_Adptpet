@@ -24,6 +24,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+    </application>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- Android 13 (API 33) en adelante -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- Para cámara si usas la cámara opcionalmente -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Añade esto para evitar el warning sobre hardware de cámara -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 </manifest>

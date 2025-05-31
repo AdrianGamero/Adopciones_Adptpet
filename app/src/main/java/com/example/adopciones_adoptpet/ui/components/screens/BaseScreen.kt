@@ -67,6 +67,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
@@ -255,7 +256,8 @@ fun BaseScreenPreview() {
     val petRepository = PetRepositoryImpl( firebasePetDataSource, roomPetDataSource)
     val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
     val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
-    val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase)
+    val addPetUseCase = AddPetUseCase(petRepository)
+    val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase)
     val userRemoteDataSource = UserRemoteDataSource()
     val userDao= db.userDao()
     val sessionManager = SessionManager(userDao)

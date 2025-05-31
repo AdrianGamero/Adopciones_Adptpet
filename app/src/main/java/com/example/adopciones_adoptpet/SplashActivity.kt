@@ -8,6 +8,7 @@ import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.PetRepositoryImpl
+import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import com.example.adopciones_adoptpet.ui.components.screens.SplashScreen
@@ -28,7 +29,8 @@ class SplashActivity : ComponentActivity() {
         val petRepository= PetRepositoryImpl(firebasePetDataSource,roomPetDataSource)
         val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
         val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
-        val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase)
+        val addPetUseCase = AddPetUseCase(petRepository)
+        val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase)
 
         setContent {
             SplashScreen(petViewModel){

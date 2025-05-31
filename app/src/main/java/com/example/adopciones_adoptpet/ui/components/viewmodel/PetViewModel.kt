@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -7,9 +8,13 @@ import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
+import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.model.enums.PetAgeRange
+import com.example.adopciones_adoptpet.domain.model.enums.PetGender
+import com.example.adopciones_adoptpet.domain.model.enums.PetSize
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
+import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +31,9 @@ import kotlinx.coroutines.launch
 
 class PetViewModel(
     private val useCase: SyncAndLoadUseCase,
-    private val getBreedsByTypeUseCase: GetBreedsByTypeUseCase
+    private val getBreedsByTypeUseCase: GetBreedsByTypeUseCase,
+    private val addPetUseCase: AddPetUseCase
+
 ) : ViewModel() {
 
     private val _breeds = mutableStateOf<List<BreedEntity>>(emptyList())
@@ -34,6 +41,9 @@ class PetViewModel(
 
     private val _allPets = MutableStateFlow<List<PetWithImagesAndBreeds>>(emptyList())
     private val _filters = MutableStateFlow<Map<String, String>>(emptyMap())
+
+    private val _insertResult = MutableStateFlow<Result<Unit>?>(null)
+    val insertResult: StateFlow<Result<Unit>?> = _insertResult
 
     val pets: StateFlow<List<PetWithImagesAndBreeds>> = combine(
         _allPets,
@@ -126,5 +136,19 @@ class PetViewModel(
         viewModelScope.launch {
             _breeds.value = getBreedsByTypeUseCase.invoke(type)
         }
+    }
+
+    fun insertPet(pet: PetWithImagesAndBreeds, shelterId: String) {
+        Log.d("InsertPet", "Insert pet llamado")
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _insertResult.value = addPetUseCase(pet, shelterId)
+            Log.d("InsertPet", _insertResult.toString())
+
+        }
+    }
+
+    fun clearInsertResult() {
+        _insertResult.value = null
     }
 }

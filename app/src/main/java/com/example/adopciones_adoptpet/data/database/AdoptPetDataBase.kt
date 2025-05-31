@@ -17,7 +17,7 @@ import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 
 @Database(
     entities = [PetEntity::class, RequestEntity::class, BreedEntity::class, PetImageEntity::class, LoggedUserEntity::class,ShelterExtraData::class],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

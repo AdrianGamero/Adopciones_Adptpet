@@ -31,4 +31,6 @@ interface UserDao {
         clearLoggedUser()
         clearShelterExtraData()
     }
+
+
 }

@@ -19,11 +19,11 @@ import com.example.adopciones_adoptpet.domain.model.enums.PetSize
     indices = [Index("breedId")]
 )
 data class PetEntity(
-    @PrimaryKey val petId: Int = 0,
+    @PrimaryKey val petId: String = "",
     val name: String = "",
     val age: Int = 0,
     val gender: PetGender = PetGender.MALE,
     val size: PetSize = PetSize.MEDIUM,
-    val breedId: Int = 0,
-    val shelterId: Int = 0,
+    val breedId: String = "",
+    val shelterId: String = "",
 )

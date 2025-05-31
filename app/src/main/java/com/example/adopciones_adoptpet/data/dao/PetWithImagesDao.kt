@@ -16,11 +16,8 @@ interface PetWithImagesDao {
     @Query("SELECT name FROM breeds WHERE :petType IS NULL OR type= :petType")
     suspend fun getAllBreedsNames(petType: PetType?): List<String>
 
-    @Query("SELECT * FROM pets WHERE breedId = :breedId ")
-    suspend fun getPetsByBreed(breedId: String): List<PetEntity>
-
-    @Query("SELECT * FROM pet_images WHERE petId = :petId")
-    suspend fun getAllImagesByPetId(petId: String): List<PetImageEntity>
+    @Query("SELECT * FROM breeds")
+    fun getAllBreedsNow(): List<BreedEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllPets(pets: List<PetEntity>)
@@ -39,5 +36,16 @@ interface PetWithImagesDao {
 
     @Query("SELECT * FROM pet_images")
     fun getAllImages(): Flow<List<PetImageEntity>>
+
+    @Insert
+    suspend fun insertPet(pet: PetEntity): Long
+    @Insert
+    suspend fun insertBreed(breed: BreedEntity): Long
+
+    @Insert
+    suspend fun insertImages(images: List<PetImageEntity>)
+
+    @Query("SELECT * FROM breeds WHERE name = :breedName LIMIT 1")
+    suspend fun getBreedByName(breedName: String): BreedEntity?
 
 }

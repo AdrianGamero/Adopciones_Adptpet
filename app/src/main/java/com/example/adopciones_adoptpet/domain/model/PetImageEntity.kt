@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
     indices = [Index("petId")]
 )
 data class PetImageEntity(
-    @PrimaryKey val imageId: Int =0,
-    val petId: Int=0,
+    @PrimaryKey val imageId: String ="",
+    val petId: String="",
     val url: String=""
 )
