@@ -1,5 +1,6 @@
 package com.example.adopciones_adoptpet.data.dataSource
 
+import android.util.Log
 import com.example.adopciones_adoptpet.converters.Converters.toPetGender
 import com.example.adopciones_adoptpet.converters.Converters.toPetSize
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
@@ -54,7 +55,7 @@ class FirebasePetDataSource (
             val petId = pet.id
 
             val images = db.collection("pets")
-                .document(petId.toString())
+                .document(petId)
                 .collection("images")
                 .get()
                 .await()
@@ -99,34 +100,30 @@ class FirebasePetDataSource (
 
     suspend fun insertPetWithImages(
         pet: PetEntity,
-        breed: BreedEntity,
         images: List<PetImageEntity>
     ) {
-        val breedDoc = db.collection("breeds").document(breed.breedId)
-        breedDoc.set(
-            mapOf(
-                "name" to breed.name,
-                "type" to breed.type.name
-            ),
-            SetOptions.merge()
-        )
 
         val petDoc = db.collection("pets").document(pet.petId)
         petDoc.set(
             mapOf(
                 "name" to pet.name,
                 "age" to pet.age,
-                "gender" to pet.gender.name,
-                "size" to pet.size.name,
+                "gender" to pet.gender.displayName,
+                "size" to pet.size.displayName,
                 "breedId" to pet.breedId,
                 "shelterId" to pet.shelterId,
-                "type" to breed.type.name
             )
-        )
+        ).await()
 
         val imagesCollection = petDoc.collection("images")
+        Log.d("insertPetWithImages", "Total images: ${images.size}")
         images.forEach { image ->
-            imagesCollection.document(image.imageId).set(mapOf("url" to image.url))
+            imagesCollection.document(image.imageId)
+                .set(mapOf(
+                    "imageId" to image.imageId,
+                    "petId" to pet.petId,
+                    "url" to image.url))
+                .await()
         }
     }
 
@@ -134,7 +131,7 @@ class FirebasePetDataSource (
         db.collection("breeds").document(breed.breedId).set(
             mapOf(
                 "name" to breed.name,
-                "type" to breed.type.name
+                "type" to breed.type.displayName
             ),
             SetOptions.merge()
         )

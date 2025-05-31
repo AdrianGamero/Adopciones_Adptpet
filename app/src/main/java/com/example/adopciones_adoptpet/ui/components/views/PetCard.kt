@@ -25,6 +25,13 @@ fun petCard(
     pet:PetWithImagesAndBreeds,
     onClick: () -> Unit
 ) {
+    fun formatAge(months: Int): String {
+        return when {
+            months < 12 -> "$months meses"
+            months % 12 == 0 -> "${months / 12} años"
+            else -> "${months / 12} años y ${months % 12} meses"
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,7 +52,7 @@ fun petCard(
                         fontWeight = FontWeight.Bold
                     )
                 )
-                Text("Edad: ${pet.age}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
+                Text("Edad: ${formatAge(pet.age)}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text("Raza: ${pet.breedName}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text("Sexo: ${pet.gender.displayName}", fontSize = 17.sp, modifier = Modifier.padding(top = 8.dp))
                 Text(

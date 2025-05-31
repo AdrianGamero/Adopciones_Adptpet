@@ -15,6 +15,7 @@ import com.example.adopciones_adoptpet.domain.model.enums.PetSize
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
 import com.example.adopciones_adoptpet.utils.Base64ToImage
+import com.example.adopciones_adoptpet.utils.FormatBreedName.formatBreedName
 import com.example.adopciones_adoptpet.utils.ImageToBase64.encodeBitmapToBase64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -119,11 +120,12 @@ class PetRepositoryImpl(
         return try {
             val existingBreeds = roomPetDataSource.getBreeds()
 
-            val existingBreed = existingBreeds.find { it.name == pet.breedName }
+            val formattedBreedName = formatBreedName(pet.breedName)
+            val existingBreed = existingBreeds.find { it.name == formattedBreedName }
 
             val breed = existingBreed ?: BreedEntity(
                 breedId = UUID.randomUUID().toString(),
-                name = pet.breedName,
+                name = formattedBreedName,
                 type = pet.petType
             ).also {
                 roomPetDataSource.insertBreed(it)
@@ -154,7 +156,7 @@ class PetRepositoryImpl(
             roomPetDataSource.insertPetWithImages(petEntity, imageEntities)
             Log.d("insert pet", "insertando en firebase")
 
-            firebasePetDataSource.insertPetWithImages(petEntity, breed, imageEntities)
+            firebasePetDataSource.insertPetWithImages(petEntity, imageEntities)
 
             Result.success(Unit)
 

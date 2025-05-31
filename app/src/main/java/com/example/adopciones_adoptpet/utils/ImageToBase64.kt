@@ -5,10 +5,35 @@ import android.util.Base64
 import java.io.ByteArrayOutputStream
 
 object ImageToBase64 {
+    private const val MAX_SIZE_BYTES = 1_000_000
+
     fun encodeBitmapToBase64(bitmap: Bitmap): String {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+        var quality = 100
+        var compressedBytes: ByteArray
+
+        do {
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+            compressedBytes = outputStream.toByteArray()
+            quality -= 5
+        } while (compressedBytes.size > MAX_SIZE_BYTES && quality > 10)
+
+        if (compressedBytes.size > MAX_SIZE_BYTES) {
+            val maxWidth = 600
+            val aspectRatio = bitmap.height.toDouble() / bitmap.width.toDouble()
+            val newHeight = (maxWidth * aspectRatio).toInt()
+            val resizedBitmap = Bitmap.createScaledBitmap(bitmap, maxWidth, newHeight, true)
+
+            quality = 100
+            do {
+                val outputStream = ByteArrayOutputStream()
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+                compressedBytes = outputStream.toByteArray()
+                quality -= 5
+            } while (compressedBytes.size > MAX_SIZE_BYTES && quality > 10)
+
+        }
+
+        return Base64.encodeToString(compressedBytes, Base64.DEFAULT)
     }
 }

@@ -1,18 +1,13 @@
 package com.example.adopciones_adoptpet.ui.components.viewmodel
 
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-
 import androidx.lifecycle.viewModelScope
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
-import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.model.enums.PetAgeRange
-import com.example.adopciones_adoptpet.domain.model.enums.PetGender
-import com.example.adopciones_adoptpet.domain.model.enums.PetSize
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase

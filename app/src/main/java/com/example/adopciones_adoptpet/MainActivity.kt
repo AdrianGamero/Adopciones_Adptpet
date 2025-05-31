@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
                 composable("LogInScreen") { LogInScreen(navController = navController, viewModel = sessionViewModel) }
                 composable("BaseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel, navController)}
                 composable("ProfileInfoScreen"){ ProfileInfoScreen(sessionViewModel, navController)}
-                composable("AddPetsScreen"){AddPetsScreen(petViewModel)}
+                composable("AddPetsScreen"){AddPetsScreen(petViewModel, navController)}
             }
         }
     }

@@ -10,14 +10,20 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun textField(label: String, value: String, onChange: (String) -> Unit) {
+fun textField(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 8.dp),
+    onChange: (String) -> Unit
+
+) {
     TextField(
         value = value,
         onValueChange = onChange,
         label = { Text(label) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = modifier
     )
 }
 
