@@ -2,7 +2,6 @@ package com.example.adopciones_adoptpet.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.firestore.Exclude
 
 @Entity(tableName = "logged_user")
 data class LoggedUserEntity(

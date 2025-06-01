@@ -1,8 +1,6 @@
 package com.example.adopciones_adoptpet.data.repository
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.example.adopciones_adoptpet.data.dataSource.FirebasePetDataSource
 import com.example.adopciones_adoptpet.data.dataSource.RoomPetDataSource
@@ -10,8 +8,6 @@ import com.example.adopciones_adoptpet.domain.model.BreedEntity
 import com.example.adopciones_adoptpet.domain.model.PetEntity
 import com.example.adopciones_adoptpet.domain.model.PetImageEntity
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
-import com.example.adopciones_adoptpet.domain.model.enums.PetGender
-import com.example.adopciones_adoptpet.domain.model.enums.PetSize
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
 import com.example.adopciones_adoptpet.utils.Base64ToImage
@@ -21,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
