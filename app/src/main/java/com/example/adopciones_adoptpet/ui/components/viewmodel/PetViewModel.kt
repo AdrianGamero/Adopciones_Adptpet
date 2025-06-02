@@ -116,12 +116,12 @@ class PetViewModel(
                     "Tipo" -> value == "Todos" || pet.petType.displayName.equals(value, ignoreCase = true)
                     "Tamaño" -> value == "Todos" || pet.size.displayName.equals(value, ignoreCase = true)
                     "Edad" -> {
-                        val PetAgeRange = PetAgeRange.values().find { it.label == value }
-                        PetAgeRange?.matches(pet.age) ?: true
+                        val petAgeRange = PetAgeRange.values().find { it.label == value }
+                        petAgeRange?.matches(pet.age) ?: true
                     }
 
                     "Genero" -> value == "Todos" || pet.gender.displayName.equals(value, ignoreCase = true)
-                    "Raza" -> value == "Sin razas disponibles" || pet.breedName == value
+                    "Raza" -> value == "Todos" || pet.breedName == value
                     else -> true
                 }
             }

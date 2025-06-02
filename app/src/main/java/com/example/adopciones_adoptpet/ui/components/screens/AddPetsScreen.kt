@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,9 +23,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -51,6 +55,7 @@ import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.views.WriteableSelectMenu
 import com.example.adopciones_adoptpet.ui.components.views.selectMenu
 import com.example.adopciones_adoptpet.ui.components.views.textField
+import com.example.adopciones_adoptpet.ui.theme.SoftBlue
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -89,6 +94,7 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
     }
     val insertResult by viewModel.insertResult.collectAsState()
     var showErrorDialog by remember { mutableStateOf<String?>(null) }
+    val darkTheme = isSystemInDarkTheme()
 
 
     LaunchedEffect(selectedTabIndex) {
@@ -174,12 +180,32 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
     scaffoldState = scaffoldState,
     content = {
         Column(modifier = Modifier.fillMaxSize()) {
-            TabRow(selectedTabIndex = selectedTabIndex) {
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                indicator = { tabPositions ->
+                    if (darkTheme) {
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                            color = SoftBlue
+                        )
+                    } else {
+                        TabRowDefaults.Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+                        )
+                    }
+                }
+            ) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTabIndex == index,
                         onClick = { selectedTabIndex = index },
-                        text = { Text(title.displayName) }
+                        text = {
+                            Text(
+                                title.displayName,
+                                color = if (darkTheme && selectedTabIndex == index) SoftBlue
+                                else MaterialTheme.colors.onSurface
+                            )
+                        }
                     )
                 }
             }

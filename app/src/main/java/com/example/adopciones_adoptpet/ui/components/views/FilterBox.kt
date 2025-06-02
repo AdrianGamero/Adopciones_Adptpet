@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.material3.Button
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,7 +40,7 @@ fun filterBox(
     Box(
         modifier = Modifier
             .fillMaxWidth(0.9f)
-            .background(color = Color.White)
+            .background(MaterialTheme.colors.background, shape = RoundedCornerShape(8.dp))
             .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

@@ -31,6 +31,7 @@ import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
+import com.example.adopciones_adoptpet.ui.theme.Adopciones_AdoptpetTheme
 import com.example.adopciones_adoptpet.utils.SessionManager
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -38,38 +39,63 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            val db = AdoptPetDataBase.getDatabase(this)
+            Adopciones_AdoptpetTheme {
+                val navController = rememberNavController()
+                val db = AdoptPetDataBase.getDatabase(this)
 
-            val dao = db.petWithImagesDao()
-            val repository = FilterRepositoryImpl(dao)
-            val useCase = GetFiltersUseCase(repository)
-            val filterViewModel = remember { FilterViewModel(useCase = useCase) }
+                val dao = db.petWithImagesDao()
+                val repository = FilterRepositoryImpl(dao)
+                val useCase = GetFiltersUseCase(repository)
+                val filterViewModel = remember { FilterViewModel(useCase = useCase) }
 
-            val firebaseDb = FirebaseFirestore.getInstance()
-            val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
-            val roomPetDataSource = RoomPetDataSource(dao)
-            val petRepository= PetRepositoryImpl(firebasePetDataSource,roomPetDataSource)
-            val syncAndLoadUseCase= SyncAndLoadUseCase(petRepository)
-            val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
-            val addPetUseCase = AddPetUseCase(petRepository)
-            val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase)
+                val firebaseDb = FirebaseFirestore.getInstance()
+                val firebasePetDataSource = FirebasePetDataSource(firebaseDb)
+                val roomPetDataSource = RoomPetDataSource(dao)
+                val petRepository = PetRepositoryImpl(firebasePetDataSource, roomPetDataSource)
+                val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
+                val getBreedsByTypeUseCase = GetBreedsByTypeUseCase(petRepository)
+                val addPetUseCase = AddPetUseCase(petRepository)
+                val petViewModel =
+                    PetViewModel(syncAndLoadUseCase, getBreedsByTypeUseCase, addPetUseCase)
 
-            val userRemoteDataSource = UserRemoteDataSource()
-            val userDao= db.userDao()
-            val sessionManager = SessionManager(userDao)
-            val authRepository= AuthRepositoryImpl( sessionManager,userRemoteDataSource)
-            val logInUseCase= LogInUseCase(authRepository)
-            val sessionViewModel= SessionViewModel(logInUseCase)
-            val signUpUserUseCase= SignUpUserUseCase(authRepository)
-            val signUpViewModel= SignUpViewModel(signUpUserUseCase)
+                val userRemoteDataSource = UserRemoteDataSource()
+                val userDao = db.userDao()
+                val sessionManager = SessionManager(userDao)
+                val authRepository = AuthRepositoryImpl(sessionManager, userRemoteDataSource)
+                val logInUseCase = LogInUseCase(authRepository)
+                val sessionViewModel = SessionViewModel(logInUseCase)
+                val signUpUserUseCase = SignUpUserUseCase(authRepository)
+                val signUpViewModel = SignUpViewModel(signUpUserUseCase)
 
-            NavHost(navController = navController, startDestination = "BaseScreen") {
-                composable("SignUpScreen") { SignUpScreen(navController = navController, viewModel = signUpViewModel) }
-                composable("LogInScreen") { LogInScreen(navController = navController, viewModel = sessionViewModel) }
-                composable("BaseScreen"){ BaseScreen(filterViewModel,petViewModel,sessionViewModel, navController)}
-                composable("ProfileInfoScreen"){ ProfileInfoScreen(sessionViewModel, navController)}
-                composable("AddPetsScreen"){AddPetsScreen(petViewModel, navController)}
+                NavHost(navController = navController, startDestination = "BaseScreen") {
+                    composable("SignUpScreen") {
+                        SignUpScreen(
+                            navController = navController,
+                            viewModel = signUpViewModel
+                        )
+                    }
+                    composable("LogInScreen") {
+                        LogInScreen(
+                            navController = navController,
+                            viewModel = sessionViewModel
+                        )
+                    }
+                    composable("BaseScreen") {
+                        BaseScreen(
+                            filterViewModel,
+                            petViewModel,
+                            sessionViewModel,
+                            navController
+                        )
+                    }
+                    composable("ProfileInfoScreen") {
+                        ProfileInfoScreen(
+                            sessionViewModel,
+                            navController
+                        )
+                    }
+                    composable("AddPetsScreen") { AddPetsScreen(petViewModel, navController) }
+                }
             }
         }
     }

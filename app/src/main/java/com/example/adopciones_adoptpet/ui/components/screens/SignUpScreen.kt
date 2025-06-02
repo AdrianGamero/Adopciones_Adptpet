@@ -2,6 +2,7 @@ package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Tab
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +38,7 @@ import com.example.adopciones_adoptpet.domain.useCase.SignUpUserUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
 import com.example.adopciones_adoptpet.ui.components.views.passwordField
 import com.example.adopciones_adoptpet.ui.components.views.textField
+import com.example.adopciones_adoptpet.ui.theme.SoftBlue
 import com.example.adopciones_adoptpet.utils.SessionManager
 
 
@@ -48,6 +53,8 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
     var address by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
     var website by remember { mutableStateOf("") }
+    val darkTheme = isSystemInDarkTheme()
+
 
     val context = LocalContext.current
     val tabs = listOf("Adoptante", "Protectora")
@@ -69,12 +76,32 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
         scaffoldState = scaffoldState,
         content = {
             Column(modifier = Modifier.fillMaxSize()) {
-                TabRow(selectedTabIndex = selectedTabIndex) {
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    indicator = { tabPositions ->
+                        if (darkTheme) {
+                            TabRowDefaults.Indicator(
+                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                color = SoftBlue
+                            )
+                        } else {
+                            TabRowDefaults.Indicator(
+                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+                            )
+                        }
+                    }
+                ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTabIndex == index,
                             onClick = { selectedTabIndex = index },
-                            text = { Text(title) }
+                            text = {
+                                Text(
+                                    title,
+                                    color = if (darkTheme && selectedTabIndex == index) SoftBlue
+                                    else MaterialTheme.colors.onSurface
+                                )
+                            }
                         )
                     }
                 }

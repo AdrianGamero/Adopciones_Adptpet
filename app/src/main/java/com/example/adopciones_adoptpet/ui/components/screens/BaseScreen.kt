@@ -21,7 +21,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.Button
+import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,13 +54,16 @@ import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
@@ -71,6 +73,7 @@ import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 import com.example.adopciones_adoptpet.ui.components.views.ProfileCard
+import com.example.adopciones_adoptpet.ui.theme.Pink80
 import com.example.adopciones_adoptpet.utils.SessionManager
 
 
@@ -107,7 +110,9 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
+            val darkTheme = isSystemInDarkTheme()
             TopAppBar(
+
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -117,7 +122,10 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                     }) {
                         Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
                     }
-                }
+
+                },
+                backgroundColor = if (darkTheme) MaterialTheme.colors.primary else Pink80,
+                contentColor = if (darkTheme) Color.White else Color.Black
             )
         },
         drawerContent = {
@@ -140,7 +148,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
         },
         content = { paddingValues ->
             Column(
-                modifier = Modifier.padding(paddingValues).background(color = Color.LightGray)
+                modifier = Modifier.padding(paddingValues)
             ) {
                 if (selectedPet == null) {
                     Row(
@@ -152,7 +160,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                                 filterViewModel.toggleFilters()
                                 filterViewModel.loadFilters(null)
                             },
-                            Modifier.padding(start = 8.dp)
+                            Modifier.padding(start = 8.dp),
                         ) {
                             Text("Filtros")
                         }
