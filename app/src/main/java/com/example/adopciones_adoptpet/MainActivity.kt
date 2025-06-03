@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
                 val db = AdoptPetDataBase.getDatabase(this)
 
                 val dao = db.petWithImagesDao()
+                val userDao = db.userDao()
+
                 val repository = FilterRepositoryImpl(dao)
                 val useCase = GetFiltersUseCase(repository)
                 val filterViewModel = remember { FilterViewModel(useCase = useCase) }
@@ -55,12 +57,11 @@ class MainActivity : ComponentActivity() {
                 val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
                 val getBreedsByTypeUseCase = GetBreedsByTypeUseCase(petRepository)
                 val addPetUseCase = AddPetUseCase(petRepository)
-                val petViewModel =
-                    PetViewModel(syncAndLoadUseCase, getBreedsByTypeUseCase, addPetUseCase)
+                val sessionManager = SessionManager(userDao)
+
+                val petViewModel = PetViewModel(syncAndLoadUseCase, getBreedsByTypeUseCase, addPetUseCase, sessionManager)
 
                 val userRemoteDataSource = UserRemoteDataSource()
-                val userDao = db.userDao()
-                val sessionManager = SessionManager(userDao)
                 val authRepository = AuthRepositoryImpl(sessionManager, userRemoteDataSource)
                 val logInUseCase = LogInUseCase(authRepository)
                 val sessionViewModel = SessionViewModel(logInUseCase)

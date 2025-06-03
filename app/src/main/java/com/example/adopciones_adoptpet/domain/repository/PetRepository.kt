@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface PetRepository {
 
-    suspend fun syncPetsWithRemote()
+    suspend fun syncPetsWithRemote(shelterId: String? = null)
     suspend fun getPetsWithImagesAndBreeds(): Flow<List<PetWithImagesAndBreeds>>
     suspend fun getBreedsByType(type: PetType): List<BreedEntity>
     suspend fun insertPet(pet: PetWithImagesAndBreeds, shelterId: String): Result<Unit>

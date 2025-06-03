@@ -24,13 +24,11 @@ class PetRepositoryImpl(
     private val firebasePetDataSource: FirebasePetDataSource,
     private val roomPetDataSource: RoomPetDataSource
 ) : PetRepository {
+    private var lastSyncedUserId: String? = null
 
     override suspend fun getBreedsByType(type: PetType): List<BreedEntity> {
         return roomPetDataSource.getAllBreeds().first().filter { it.type == type }
     }
-
-
-
 
     @SuppressLint("SuspiciousIndentation")
     override suspend fun getPetsWithImagesAndBreeds(): Flow<List<PetWithImagesAndBreeds>> {
@@ -61,28 +59,46 @@ class PetRepositoryImpl(
     }
 
 
-    override suspend fun syncPetsWithRemote(): Unit = withContext(Dispatchers.IO) {
-        val localPetsFlow = roomPetDataSource.getAllPets()
-        val localBreedsFlow = roomPetDataSource.getAllBreeds()
+    override suspend fun syncPetsWithRemote(shelterId: String?): Unit = withContext(Dispatchers.IO) {
+        val currentUserId = shelterId ?: "PUBLIC"
+        val isFirstSyncForUser = currentUserId != lastSyncedUserId
+        lastSyncedUserId = currentUserId
 
-        val localPets = localPetsFlow.first()
-        val localBreeds = localBreedsFlow.first()
+        val localPets = roomPetDataSource.getAllPets().first()
+        val localBreeds = roomPetDataSource.getAllBreeds().first()
 
-        val shouldForceSync = localPets.isEmpty() && localBreeds.isEmpty()
+        val shouldForceSync = (localPets.isEmpty() && localBreeds.isEmpty())  ||  isFirstSyncForUser
 
         if (!firebasePetDataSource.hasRemoteChanges.value && !shouldForceSync) {
-            Log.d("sync", "No hay cambios remotos y la base de datos no está vacía. No se sincroniza.")
+            Log.d("sync", "No hay cambios remotos y no se requiere sincronización forzada.")
             return@withContext
         }
 
         val remotePets = firebasePetDataSource.getAllPets()
         val remoteBreeds = firebasePetDataSource.getAllBreeds()
-        val remoteImages = mutableListOf<PetImageEntity>()
+        val remoteImages = firebasePetDataSource.getAllImages()
 
-        val updatedPets = remotePets.map { pet ->
-            val images = firebasePetDataSource.getAllImages()
-            remoteImages.addAll(images)
-            pet.copy()
+        val filteredPets = if (shelterId != null) {
+            remotePets.filter { it.shelterId == shelterId }
+        } else {
+            remotePets
+        }
+
+        val filteredImages = remoteImages.filter { img ->
+            filteredPets.any { it.petId == img.petId }
+        }
+
+        val petsToDelete = if (shelterId != null) {
+            localPets.filter { it.shelterId != shelterId || filteredPets.none { r -> r.petId == it.petId } }
+        } else {
+            localPets.filter { localPet -> filteredPets.none { r -> r.petId == localPet.petId } }
+        }
+
+        if (petsToDelete.isNotEmpty()) {
+            val idsToDelete = petsToDelete.map { it.petId }
+            roomPetDataSource.deleteImagesByPetIds(idsToDelete)
+            idsToDelete.forEach { roomPetDataSource.deletePetById(it) }
+            Log.d("sync", "Eliminados ${idsToDelete.size} animales e imágenes que no aplican.")
         }
 
         val updatedBreeds = remoteBreeds.filter { remoteBreed ->
@@ -91,24 +107,24 @@ class PetRepositoryImpl(
         }
 
         if (updatedBreeds.isNotEmpty() || shouldForceSync) {
-            Log.d("repo", "Razas introducidas")
             roomPetDataSource.insertAllBreeds(remoteBreeds)
+            Log.d("repo", "Razas insertadas o actualizadas.")
         } else {
-            Log.d("repo", "No hay cambios en las razas")
+            Log.d("repo", "No hay cambios en las razas.")
         }
 
-        if (updatedPets.isNotEmpty() || shouldForceSync) {
-            roomPetDataSource.insertAllPets(remotePets)
-            Log.d("repo", "Animales introducidos")
-
-            roomPetDataSource.insertAllImages(remoteImages)
-            Log.d("repo", "Imagenes introducidas")
+        if (filteredPets.isNotEmpty() || shouldForceSync) {
+            roomPetDataSource.insertAllPets(filteredPets)
+            roomPetDataSource.insertAllImages(filteredImages)
+            Log.d("repo", "Animales e imágenes sincronizados.")
         } else {
-            Log.d("repo", "No hay cambios en los animales")
+            Log.d("repo", "No hay cambios en los animales.")
         }
 
         firebasePetDataSource.resetRemoteChangeFlag()
     }
+
+
 
     override suspend fun insertPet(pet: PetWithImagesAndBreeds, shelterId: String): Result<Unit> {
         Log.d("insert pet", "repositorio llamado")

@@ -23,20 +23,28 @@ class RoomPetDataSource(private val dao: PetWithImagesDao) {
             dao.insertAllBreeds(breeds)
         }
 
-        suspend fun getAllPets():Flow<List<PetEntity>>{
+         fun getAllPets():Flow<List<PetEntity>>{
             return dao.getAllPets()
         }
-        suspend fun getAllBreeds(): Flow<List<BreedEntity>>{
+         fun getAllBreeds(): Flow<List<BreedEntity>>{
             return dao.getAllBreeds()
         }
-        suspend fun getAllImages(): Flow<List<PetImageEntity>>{
+         fun getAllImages(): Flow<List<PetImageEntity>>{
             return dao.getAllImages()
         }
 
+    suspend fun deletePetById(petId: String) = withContext(Dispatchers.IO) {
+        dao.deleteImagesByPetId(petId)
+        dao.deletePetById(petId)
+    }
 
 
-    suspend fun getBreeds(): List<BreedEntity> {
+     fun getBreeds(): List<BreedEntity> {
         return dao.getAllBreedsNow()
+    }
+
+    suspend fun deleteImagesByPetIds(petIds: List<String>) {
+        dao.deleteImagesByPetIds(petIds)
     }
 
     suspend fun insertPetWithImages(pet: PetEntity, images: List<PetImageEntity>) = withContext(Dispatchers.IO) {
@@ -47,7 +55,4 @@ class RoomPetDataSource(private val dao: PetWithImagesDao) {
     suspend fun insertBreed(breed: BreedEntity) = withContext(Dispatchers.IO) {
         dao.insertBreed(breed)
     }
-
-
-
 }

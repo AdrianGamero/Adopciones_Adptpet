@@ -127,7 +127,7 @@ class FirebasePetDataSource (
         }
     }
 
-    suspend fun insertBreed(breed: BreedEntity) {
+     fun insertBreed(breed: BreedEntity) {
         db.collection("breeds").document(breed.breedId).set(
             mapOf(
                 "name" to breed.name,

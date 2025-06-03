@@ -3,7 +3,6 @@ package com.example.adopciones_adoptpet.ui.components.screens
 
 //noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,8 +61,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
@@ -106,6 +107,9 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
             }
         }
     )
+    LaunchedEffect(Unit) {
+        petViewModel.syncPets()
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -264,10 +268,10 @@ fun BaseScreenPreview() {
     val syncAndLoadUseCase = SyncAndLoadUseCase(petRepository)
     val getBreedsByTypeUseCase= GetBreedsByTypeUseCase(petRepository)
     val addPetUseCase = AddPetUseCase(petRepository)
-    val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase)
     val userRemoteDataSource = UserRemoteDataSource()
     val userDao= db.userDao()
     val sessionManager = SessionManager(userDao)
+    val petViewModel = PetViewModel(syncAndLoadUseCase,getBreedsByTypeUseCase, addPetUseCase, sessionManager)
     val authRepository= AuthRepositoryImpl( sessionManager,userRemoteDataSource)
     val logInUseCase= LogInUseCase(authRepository)
     val sessionViewModel= SessionViewModel(logInUseCase)

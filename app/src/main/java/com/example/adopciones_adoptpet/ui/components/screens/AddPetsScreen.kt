@@ -169,9 +169,7 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
             images = bitmaps
         )
 
-        val shelterId = ""
-
-        viewModel.insertPet(pet, shelterId)
+        viewModel.insertPet(pet)
     }
 
 

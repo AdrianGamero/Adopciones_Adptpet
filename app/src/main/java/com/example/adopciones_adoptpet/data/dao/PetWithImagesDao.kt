@@ -37,6 +37,16 @@ interface PetWithImagesDao {
     @Query("SELECT * FROM pet_images")
     fun getAllImages(): Flow<List<PetImageEntity>>
 
+    @Query("DELETE FROM pets")
+    suspend fun deleteAllPets()
+
+    @Query("DELETE FROM pet_images")
+    suspend fun deleteAllImages()
+
+    @Query("DELETE FROM pets WHERE petId = :petId")
+    suspend fun deletePetById(petId: String)
+    @Query("DELETE FROM pet_images WHERE petId = :petId")
+    suspend fun deleteImagesByPetId(petId: String)
     @Insert
     suspend fun insertPet(pet: PetEntity): Long
     @Insert
@@ -48,4 +58,6 @@ interface PetWithImagesDao {
     @Query("SELECT * FROM breeds WHERE name = :breedName LIMIT 1")
     suspend fun getBreedByName(breedName: String): BreedEntity?
 
+    @Query("DELETE FROM pet_images WHERE petId IN (:petIds)")
+    suspend fun deleteImagesByPetIds(petIds: List<String>)
 }

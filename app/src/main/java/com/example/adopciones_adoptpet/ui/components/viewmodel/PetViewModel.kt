@@ -12,6 +12,7 @@ import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
+import com.example.adopciones_adoptpet.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -27,7 +28,8 @@ import kotlinx.coroutines.launch
 class PetViewModel(
     private val useCase: SyncAndLoadUseCase,
     private val getBreedsByTypeUseCase: GetBreedsByTypeUseCase,
-    private val addPetUseCase: AddPetUseCase
+    private val addPetUseCase: AddPetUseCase,
+    private val sessionManager: SessionManager
 
 ) : ViewModel() {
 
@@ -64,7 +66,12 @@ class PetViewModel(
 
     suspend fun syncPets() {
         try {
-            useCase.sync()
+            val session = sessionManager.getSession()
+            if (session != null && session.role == "shelter") {
+                useCase.sync(session.uid)
+            } else {
+                useCase.sync()
+            }
         } catch (e: Exception) {
             Log.e("Sync", "Error al sincronizar: ${e.localizedMessage}")
         }
@@ -91,7 +98,6 @@ class PetViewModel(
         syncJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
                 delay(intervalMillis)
-                Log.d("Sync", "Sincronización iniciada")
                 syncPets()
             }
         }
@@ -133,10 +139,10 @@ class PetViewModel(
         }
     }
 
-    fun insertPet(pet: PetWithImagesAndBreeds, shelterId: String) {
-        Log.d("InsertPet", "Insert pet llamado")
+    fun insertPet(pet: PetWithImagesAndBreeds) {
 
         viewModelScope.launch(Dispatchers.IO) {
+            val shelterId = sessionManager.getSession()!!.uid
             _insertResult.value = addPetUseCase(pet, shelterId)
             Log.d("InsertPet", _insertResult.toString())
 
