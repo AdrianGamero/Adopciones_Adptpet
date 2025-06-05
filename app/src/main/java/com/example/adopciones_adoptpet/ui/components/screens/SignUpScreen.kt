@@ -27,10 +27,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
 import com.example.adopciones_adoptpet.data.database.AdoptPetDataBase
 import com.example.adopciones_adoptpet.data.repository.AuthRepositoryImpl
@@ -39,6 +41,7 @@ import com.example.adopciones_adoptpet.ui.components.viewmodel.SignUpViewModel
 import com.example.adopciones_adoptpet.ui.components.views.passwordField
 import com.example.adopciones_adoptpet.ui.components.views.textField
 import com.example.adopciones_adoptpet.ui.theme.SoftBlue
+import com.example.adopciones_adoptpet.utils.ErrorMessages
 import com.example.adopciones_adoptpet.utils.SessionManager
 
 
@@ -61,13 +64,17 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
     var selectedTabIndex by remember { mutableStateOf(0) }
 
     val signUpResult = viewModel.signUpResult
+    val errorMessage = viewModel.errorMessage
+
     LaunchedEffect(signUpResult) {
         signUpResult?.onSuccess {
-            Toast.makeText(context, "Usuario registrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.user_registered), Toast.LENGTH_SHORT).show()
             navController.navigate("LogInScreen")
             viewModel.clearSignUpResult()
         }?.onFailure {
-            Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_LONG).show()
+            errorMessage?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -111,14 +118,14 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
                         .fillMaxSize()
                         .padding(top = 32.dp)
                 ) {
-                    textField("Nombre", name) { name = it }
-                    textField("E-Mail", eMail) { eMail = it }
-                    textField("Teléfono", phone) { phone = it }
-                    passwordField("Contraseña", password) { password = it }
+                    textField(stringResource(R.string.name), name) { name = it }
+                    textField(stringResource(R.string.email), eMail) { eMail = it }
+                    textField(stringResource(R.string.phone), phone) { phone = it }
+                    passwordField(stringResource(R.string.password), password) { password = it }
                     if (selectedTabIndex == 1){
-                        textField("Dirección", address) { address = it }
-                        textField("Ciudad", city) { city = it }
-                        textField("Página web", website) { website = it }
+                        textField(stringResource(R.string.address), address) { address = it }
+                        textField(stringResource(R.string.city), city) { city = it }
+                        textField(stringResource(R.string.website), website) { website = it }
 
 
                     }
@@ -128,15 +135,15 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
                         onClick = {
                             val phoneInt = phone.toIntOrNull()
                             if (phoneInt != null) {
-                                val role = if (selectedTabIndex == 0) "adopter" else "shelter"
-                                if (role.equals("adopter"))
+                                val role = if (selectedTabIndex == 0) context.getString(R.string.adopter_role) else context.getString(R.string.shelter_role)
+                                if (role.equals(context.getString(R.string.adopter_role)))
                                     viewModel.signUpAdopter(name, eMail, password, phoneInt, role)
                                      else
                                     viewModel.signUpShelter(name, eMail, password, phoneInt, role, address,city,website)
 
 
                             } else {
-                                Toast.makeText(context, "Número de teléfono inválido", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, ErrorMessages.INVALID_PHONE_NUMBER, Toast.LENGTH_SHORT).show()
                             }
                         },
                         enabled = name.isNotBlank() && password.isNotBlank() && eMail.isNotBlank() && phone.isNotBlank(),
@@ -144,7 +151,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel) {
                             .width(200.dp)
                             .align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Registrarse")
+                        Text((stringResource(R.string.register)))
                     }
                 }
             }

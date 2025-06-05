@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ButtonDefaults
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.OutlinedButton
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,10 +21,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
 
 @Composable
@@ -50,35 +54,34 @@ fun ProfileInfoScreen(viewModel: SessionViewModel, navController: NavController)
         ) {
             Column {
                 Text(
-                    text = "Nombre: ${user!!.name}",
+                    text = stringResource(R.string.name_label, user!!.name),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
                 Text(
-                    text = "Email: ${user!!.email}",
+                    text = stringResource(R.string.email_label, user!!.email),
                     fontSize = 20.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
                 Text(
-                    text = "Teléfono: ${user!!.phone}",
+                    text = stringResource(R.string.phone_label, user!!.phone),
                     fontSize = 20.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
-
-                if (user!!.role == "shelter" && extraData != null) {
+                if (user!!.role.equals(stringResource(R.string.shelter_role)) && extraData != null) {
                     Text(
-                        text = "Dirección: ${extraData!!.address}",
+                        text = stringResource(R.string.address_label, extraData!!.address),
                         fontSize = 20.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                     Text(
-                        text = "Ciudad: ${extraData!!.city}",
+                        text = stringResource(R.string.city_label, extraData!!.city),
                         fontSize = 20.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                     Text(
-                        text = "Página web: ${extraData!!.website}",
+                        text = stringResource(R.string.website_label, extraData!!.website),
                         fontSize = 20.sp,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
@@ -99,7 +102,7 @@ fun ProfileInfoScreen(viewModel: SessionViewModel, navController: NavController)
                 )
             ) {
                 Text(
-                    text = "Cerrar sesión",
+                    text = stringResource(R.string.colse_session),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )

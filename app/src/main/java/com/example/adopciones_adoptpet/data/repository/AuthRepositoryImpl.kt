@@ -19,6 +19,7 @@ class AuthRepositoryImpl(private val sessionManager: SessionManager,
     override suspend fun logIn(email: String, password: String): Result<UserWithExtraInfo> {
         return suspendCancellableCoroutine { cont ->
             FirebaseAuthService.logIn(email, password) { result ->
+
                 result.fold(
                     onSuccess = { firebaseUser ->
                         val uid = firebaseUser.uid
@@ -28,7 +29,7 @@ class AuthRepositoryImpl(private val sessionManager: SessionManager,
                                 val user = remoteDataSource.getUser(uid).getOrThrow()
                                 sessionManager.saveSession(user)
 
-                                val extraData = if (user.role == "shelter") {
+                                val extraData = if (user.role == Constants.Atuh.ROLE_SHELTER) {
                                     val data = remoteDataSource.getShelterExtra(uid).getOrThrow()
                                     sessionManager.saveExtraData(data)
                                     data

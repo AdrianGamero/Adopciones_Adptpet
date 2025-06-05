@@ -11,7 +11,7 @@ import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.PetRepository
 import com.example.adopciones_adoptpet.utils.Base64ToImage
-import com.example.adopciones_adoptpet.utils.FormatBreedName.formatBreedName
+import com.example.adopciones_adoptpet.utils.FormatPetData.formatBreedName
 import com.example.adopciones_adoptpet.utils.ImageToBase64.encodeBitmapToBase64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

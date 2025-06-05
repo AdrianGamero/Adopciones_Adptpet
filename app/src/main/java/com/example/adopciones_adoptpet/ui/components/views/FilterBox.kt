@@ -20,9 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.adopciones_adoptpet.R
 
 
 @Composable
@@ -67,12 +68,12 @@ fun filterBox(
                 Button(
                     onClick = onCancel
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel_label))
                 }
                 Button(
                     onClick = { onApply(tempFilters) },
                 ) {
-                    Text("Aplicar")
+                    Text(stringResource(R.string.apply_label))
                 }
             }
         }

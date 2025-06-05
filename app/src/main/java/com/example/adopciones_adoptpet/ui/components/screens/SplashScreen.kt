@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
@@ -29,8 +31,10 @@ fun SplashScreen(petViewModel: PetViewModel, onSyncComplete: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo",
-                modifier = Modifier.size(150.dp).background(Color.Black)
+                contentDescription = stringResource(R.string.logo),
+                modifier = Modifier
+                    .size(150.dp)
+                    .background(Color.Black)
             )
             CircularProgressIndicator(
                 modifier = Modifier.padding(top = 20.dp)

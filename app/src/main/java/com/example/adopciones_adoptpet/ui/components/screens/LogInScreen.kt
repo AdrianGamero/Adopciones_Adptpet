@@ -9,10 +9,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Button
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -81,7 +86,7 @@ fun LogInScreen(navController: NavController, viewModel: SessionViewModel) {
                         .padding(top = 16.dp, end = 16.dp)
                         .width(150.dp)
                 ) {
-                    Text("Registrarse")
+                    Text(stringResource(R.string.register))
                 }
             }
             Column(
@@ -91,8 +96,8 @@ fun LogInScreen(navController: NavController, viewModel: SessionViewModel) {
                     .padding(top = 100.dp),
             )
             {
-                textField("Email", eMail) { eMail = it }
-                passwordField("Password", password) { password = it }
+                textField(stringResource(R.string.email), eMail) { eMail = it }
+                passwordField(stringResource(R.string.password), password) { password = it }
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
@@ -103,7 +108,7 @@ fun LogInScreen(navController: NavController, viewModel: SessionViewModel) {
                         .width(200.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Iniciar sesión")
+                    Text(stringResource(R.string.login))
                 }
             }
         }
@@ -126,12 +131,6 @@ fun LogInPreView() {
 
     LogInScreen(navController = rememberNavController(), viewModel)
 }
-//fun imageToBase64(bitmap: Bitmap): String {
-//    val outputStream = ByteArrayOutputStream()
-//    bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-//    val byteArray = outputStream.toByteArray()
-//    return Base64.encodeToString(byteArray, Base64.DEFAULT)
-//}
 
 
 

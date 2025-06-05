@@ -1,6 +1,5 @@
 package com.example.adopciones_adoptpet.data.dataSource
 
-import android.util.Log
 import com.example.adopciones_adoptpet.converters.Converters.toPetGender
 import com.example.adopciones_adoptpet.converters.Converters.toPetSize
 import com.example.adopciones_adoptpet.domain.model.BreedEntity
@@ -25,7 +24,7 @@ class FirebasePetDataSource (
 
     suspend fun getAllPets(): List<PetEntity> {
         val petList = mutableListOf<PetEntity>()
-        val petDocs = db.collection("pets").get().await()
+        val petDocs = db.collection(Constants.FirestoreConstants.PETS).get().await()
 
         for (doc in petDocs.documents) {
             val petId = doc.id
@@ -33,12 +32,12 @@ class FirebasePetDataSource (
 
             val pet = PetEntity(
                 petId = petId,
-                name = data["name"] as? String ?: "",
-                age = (data["age"] as? Long)?.toInt() ?: 0,
-                gender = toPetGender(doc.getString("gender")?: "Male"),
-                size = toPetSize(doc.getString("size")?: "Medium"),
-                breedId = data["breedId"] as? String ?: "",
-                shelterId = data["shelterId"] as? String ?: ""
+                name = data[Constants.FirestoreConstants.NAME] as? String ?: "",
+                age = (data[Constants.FirestoreConstants.AGE] as? Long)?.toInt() ?: 0,
+                gender = toPetGender(doc.getString(Constants.FirestoreConstants.GENDER)?: "Male"),
+                size = toPetSize(doc.getString(Constants.FirestoreConstants.SIZE)?: "Medium"),
+                breedId = data[Constants.FirestoreConstants.BREED_ID] as? String ?: "",
+                shelterId = data[Constants.FirestoreConstants.SHELTER_ID] as? String ?: ""
             )
 
             petList.add(pet)
@@ -49,14 +48,14 @@ class FirebasePetDataSource (
     suspend fun getAllImages(): List<PetImageEntity>{
         val allImages = mutableListOf<PetImageEntity>()
 
-        val pets = db.collection("pets").get().await()
+        val pets = db.collection(Constants.FirestoreConstants.PETS).get().await()
 
         for (pet in pets.documents) {
             val petId = pet.id
 
-            val images = db.collection("pets")
+            val images = db.collection(Constants.FirestoreConstants.PETS)
                 .document(petId)
-                .collection("images")
+                .collection(Constants.FirestoreConstants.IMAGES)
                 .get()
                 .await()
 
@@ -72,24 +71,24 @@ class FirebasePetDataSource (
 
 
     suspend fun getAllBreeds(): List<BreedEntity>{
-        return db.collection("breeds")
+        return db.collection(Constants.FirestoreConstants.BREEDS)
             .get()
             .await()
             .map { doc ->
                 BreedEntity(
                     breedId = doc.id,
-                    name = doc.getString("name") ?: "",
-                    type = toPetType(doc.getString("type") ?: "Perro")
+                    name = doc.getString(Constants.FirestoreConstants.NAME) ?: "",
+                    type = toPetType(doc.getString(Constants.FirestoreConstants.TYPE) ?: "Perro")
                 )
             }
     }
 
     fun observePets() {
-        db.collection("pets").addSnapshotListener { snapshot, _ ->
+        db.collection(Constants.FirestoreConstants.PETS).addSnapshotListener { snapshot, _ ->
             if (snapshot != null) hasRemoteChanges.value = true
         }
 
-        db.collection("breeds").addSnapshotListener { snapshot, _ ->
+        db.collection(Constants.FirestoreConstants.BREEDS).addSnapshotListener { snapshot, _ ->
             if (snapshot != null) hasRemoteChanges.value = true
         }
     }
@@ -103,35 +102,34 @@ class FirebasePetDataSource (
         images: List<PetImageEntity>
     ) {
 
-        val petDoc = db.collection("pets").document(pet.petId)
+        val petDoc = db.collection(Constants.FirestoreConstants.PETS).document(pet.petId)
         petDoc.set(
             mapOf(
-                "name" to pet.name,
-                "age" to pet.age,
-                "gender" to pet.gender.displayName,
-                "size" to pet.size.displayName,
-                "breedId" to pet.breedId,
-                "shelterId" to pet.shelterId,
+                Constants.FirestoreConstants.NAME to pet.name,
+                Constants.FirestoreConstants.AGE to pet.age,
+                Constants.FirestoreConstants.GENDER to pet.gender.displayName,
+                Constants.FirestoreConstants.SIZE to pet.size.displayName,
+                Constants.FirestoreConstants.BREED_ID to pet.breedId,
+                Constants.FirestoreConstants.SHELTER_ID to pet.shelterId,
             )
         ).await()
 
-        val imagesCollection = petDoc.collection("images")
-        Log.d("insertPetWithImages", "Total images: ${images.size}")
+        val imagesCollection = petDoc.collection(Constants.FirestoreConstants.IMAGES)
         images.forEach { image ->
             imagesCollection.document(image.imageId)
                 .set(mapOf(
-                    "imageId" to image.imageId,
-                    "petId" to pet.petId,
-                    "url" to image.url))
+                    Constants.FirestoreConstants.IMAGE_ID to image.imageId,
+                    Constants.FirestoreConstants.PET_ID to pet.petId,
+                    Constants.FirestoreConstants.URL to image.url))
                 .await()
         }
     }
 
      fun insertBreed(breed: BreedEntity) {
-        db.collection("breeds").document(breed.breedId).set(
+        db.collection(Constants.FirestoreConstants.BREEDS).document(breed.breedId).set(
             mapOf(
-                "name" to breed.name,
-                "type" to breed.type.displayName
+                Constants.FirestoreConstants.NAME to breed.name,
+                Constants.FirestoreConstants.TYPE to breed.type.displayName
             ),
             SetOptions.merge()
         )

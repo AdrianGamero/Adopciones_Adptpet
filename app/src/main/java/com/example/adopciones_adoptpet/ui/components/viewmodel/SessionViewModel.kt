@@ -7,12 +7,15 @@ import com.example.adopciones_adoptpet.domain.model.LoggedUserEntity
 import com.example.adopciones_adoptpet.domain.model.ShelterExtraData
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.logIn.LoginUiState
+import com.example.adopciones_adoptpet.utils.ErrorMessages
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SessionViewModel(
-    val logInUseCase: LogInUseCase
+    private val logInUseCase: LogInUseCase
 ) : ViewModel() {
 
 
@@ -25,6 +28,7 @@ class SessionViewModel(
     private val _shelterExtraData = MutableStateFlow<ShelterExtraData?>(null)
     val shelterExtraData: StateFlow<ShelterExtraData?> = _shelterExtraData
 
+
     init {
         viewModelScope.launch {
             _loggedUser.value = logInUseCase.getSession()
@@ -35,7 +39,7 @@ class SessionViewModel(
         viewModelScope.launch {
             logInUseCase.clearSession()
             _loggedUser.value = null
-            _shelterExtraData.value=null
+            _shelterExtraData.value = null
             _loginState.value = LoginUiState.Idle
         }
     }
@@ -50,13 +54,24 @@ class SessionViewModel(
                 onSuccess = { userWithExtra ->
                     _loggedUser.value = userWithExtra.user
                     _shelterExtraData.value = userWithExtra.shelterExtraData
+
                     _loginState.value = LoginUiState.Success
 
                 },
                 onFailure = {
-                    _loginState.value = LoginUiState.Error("Error al iniciar sesión: ${it.message}")
+
+                    val message = mapFirebaseAuthExceptionToMessage(it)
+                    _loginState.value = LoginUiState.Error(message)
                 }
             )
+        }
+    }
+
+    fun mapFirebaseAuthExceptionToMessage(exception: Throwable): String {
+        return when (exception) {
+            is FirebaseAuthInvalidCredentialsException ->ErrorMessages.INVALID_CREDENTIALS
+            is FirebaseNetworkException -> ErrorMessages.NETWORK_ERROR
+            else -> ErrorMessages.UNKNOWN_ERROR
         }
     }
 }

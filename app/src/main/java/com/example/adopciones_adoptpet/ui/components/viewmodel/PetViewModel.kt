@@ -12,6 +12,8 @@ import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.SyncAndLoadUseCase
+import com.example.adopciones_adoptpet.ui.constants.FilterKeys
+import com.example.adopciones_adoptpet.ui.constants.PetMessages
 import com.example.adopciones_adoptpet.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -73,7 +75,7 @@ class PetViewModel(
                 useCase.sync()
             }
         } catch (e: Exception) {
-            Log.e("Sync", "Error al sincronizar: ${e.localizedMessage}")
+            Log.e(PetMessages.LOG_TAG_SYNC, "${PetMessages.SYNC_ERROR}: ${e.localizedMessage}")
         }
     }
 
@@ -87,17 +89,17 @@ class PetViewModel(
         if (hasStarted) return
         hasStarted = true
 
-        startSyncingPeriodically(SYNC_INTERVAL)
+        startSyncingPeriodically()
 
         viewModelScope.launch {
             observePets()
         }
     }
 
-    private fun startSyncingPeriodically(intervalMillis: Long) {
+    private fun startSyncingPeriodically() {
         syncJob = viewModelScope.launch(Dispatchers.IO) {
             while (isActive) {
-                delay(intervalMillis)
+                delay(SYNC_INTERVAL)
                 syncPets()
             }
         }
@@ -119,15 +121,15 @@ class PetViewModel(
         return allPets.filter { pet ->
             filters.all { (key, value) ->
                 when (key) {
-                    "Tipo" -> value == "Todos" || pet.petType.displayName.equals(value, ignoreCase = true)
-                    "Tamaño" -> value == "Todos" || pet.size.displayName.equals(value, ignoreCase = true)
-                    "Edad" -> {
-                        val petAgeRange = PetAgeRange.values().find { it.label == value }
+                    FilterKeys.TYPE -> value == FilterKeys.All || pet.petType.displayName.equals(value, ignoreCase = true)
+                    FilterKeys.SIZE -> value == FilterKeys.All  || pet.size.displayName.equals(value, ignoreCase = true)
+                    FilterKeys.AGE -> {
+                        val petAgeRange = PetAgeRange.entries.find { it.label == value }
                         petAgeRange?.matches(pet.age) ?: true
                     }
 
-                    "Genero" -> value == "Todos" || pet.gender.displayName.equals(value, ignoreCase = true)
-                    "Raza" -> value == "Todos" || pet.breedName == value
+                    FilterKeys.GENDER -> value == FilterKeys.All  || pet.gender.displayName.equals(value, ignoreCase = true)
+                    FilterKeys.BREED -> value == FilterKeys.All  || pet.breedName == value
                     else -> true
                 }
             }
@@ -144,7 +146,7 @@ class PetViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val shelterId = sessionManager.getSession()!!.uid
             _insertResult.value = addPetUseCase(pet, shelterId)
-            Log.d("InsertPet", _insertResult.toString())
+            Log.d(PetMessages.LOG_TAG_INSERT_PET, _insertResult.toString())
 
         }
     }

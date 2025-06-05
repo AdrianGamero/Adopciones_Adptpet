@@ -2,6 +2,10 @@ package com.example.adopciones_adoptpet.data.repository
 
 import com.example.adopciones_adoptpet.data.dao.PetWithImagesDao
 import com.example.adopciones_adoptpet.domain.model.Filter
+import com.example.adopciones_adoptpet.domain.model.enums.PetAgeRange
+import com.example.adopciones_adoptpet.domain.model.enums.PetDistanceRange
+import com.example.adopciones_adoptpet.domain.model.enums.PetGender
+import com.example.adopciones_adoptpet.domain.model.enums.PetSize
 import com.example.adopciones_adoptpet.domain.model.enums.PetType
 import com.example.adopciones_adoptpet.domain.repository.FilterRepository
 
@@ -9,15 +13,30 @@ class FilterRepositoryImpl(private val breedDao: PetWithImagesDao) : FilterRepos
     override suspend fun getAnimalFilters(petType: PetType?): List<Filter> {
         val breedOptions = breedDao.getAllBreedsNames(petType)
         return listOf(
-            Filter("Tipo", listOf("Perro", "Gato", "Todos")),
-            Filter("Tamaño", listOf("Pequeño", "Mediano", "Grande", "Gigante", "Todos")),
             Filter(
-                "Edad",
-                listOf("<1 año", "1-2 años", "2-5 años", "5-10 años", ">10 años", "Todos")
+                Constants.FilterConstants.TYPE,
+                PetType.entries.map { it.displayName }
             ),
-            Filter("Genero", listOf("Macho", "Hembra", "Todos")),
-            Filter("Distancia", listOf("<10 km", "<30 km", "<50 km", "<100km", ">100km")),
-            Filter("Raza", listOf("Todos")+ breedOptions.ifEmpty { listOf("Sin razas disponibles") })
+            Filter(
+                Constants.FilterConstants.SIZE,
+                PetSize.entries.map { it.displayName }
+            ),
+            Filter(
+                Constants.FilterConstants.AGE,
+                PetAgeRange.entries.map { it.label }
+            ),
+            Filter(
+                Constants.FilterConstants.GENDER,
+                PetGender.entries.map { it.displayName }
+            ),
+            Filter(
+                Constants.FilterConstants.DISTANCE,
+                PetDistanceRange.entries.map { it.label }
+            ),
+            Filter(
+                Constants.FilterConstants.BREED,
+                listOf(Constants.FilterConstants.ALL) + breedOptions.ifEmpty { listOf(Constants.FilterConstants.NO_BREEDS_AVAILABLE) }
+            )
         )
     }
 

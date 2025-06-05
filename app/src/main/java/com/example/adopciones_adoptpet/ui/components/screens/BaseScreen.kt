@@ -1,7 +1,6 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
 
-//noinspection UsingMaterialAndMaterial3Libraries
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,15 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Divider
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Scaffold
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.rememberScaffoldState
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,7 +56,6 @@ import com.example.adopciones_adoptpet.ui.components.viewmodel.FilterViewModel
 import com.example.adopciones_adoptpet.ui.components.viewmodel.PetViewModel
 import com.example.adopciones_adoptpet.ui.components.views.PetInfo
 import com.example.adopciones_adoptpet.ui.components.views.filterBox
-import com.example.adopciones_adoptpet.ui.components.views.petCard
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
@@ -57,6 +63,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.ExperimentalMaterialApi
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -64,7 +71,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.adopciones_adoptpet.data.dataSource.UserRemoteDataSource
@@ -73,6 +79,7 @@ import com.example.adopciones_adoptpet.domain.useCase.AddPetUseCase
 import com.example.adopciones_adoptpet.domain.useCase.GetBreedsByTypeUseCase
 import com.example.adopciones_adoptpet.domain.useCase.LogInUseCase
 import com.example.adopciones_adoptpet.ui.components.viewmodel.SessionViewModel
+import com.example.adopciones_adoptpet.ui.components.views.PetCard
 import com.example.adopciones_adoptpet.ui.components.views.ProfileCard
 import com.example.adopciones_adoptpet.ui.theme.Pink80
 import com.example.adopciones_adoptpet.utils.SessionManager
@@ -124,7 +131,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                             scaffoldState.drawerState.open()
                         }
                     }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Abrir menú")
+                        Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.open_menu))
                     }
 
                 },
@@ -145,9 +152,11 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                         navController.navigate("ProfileInfoScreen")
                     })
                 Divider()
-                Text("Opción 2", modifier = Modifier.padding(vertical = 8.dp))
+                Text(stringResource(R.string.favourites), modifier = Modifier.padding(vertical = 8.dp))
                 Divider()
-                Text("Opción 3", modifier = Modifier.padding(vertical = 8.dp))
+                Text(stringResource(R.string.my_requests), modifier = Modifier.padding(vertical = 8.dp))
+                Divider()
+                Text(stringResource(R.string.settings), modifier = Modifier.padding(vertical = 8.dp))
             }
         },
         content = { paddingValues ->
@@ -166,16 +175,16 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                             },
                             Modifier.padding(start = 8.dp),
                         ) {
-                            Text("Filtros")
+                            Text(stringResource(R.string.filters))
                         }
-                        if (user?.role.equals("shelter")) {
+                        if (user?.role.equals(stringResource(R.string.shelter_role))) {
                             Button(
                                 onClick = {
                                     navController.navigate("AddPetsScreen")
                                 },
                                 Modifier.padding(end = 8.dp)
                             ) {
-                                Text("+ Añadir")
+                                Text(stringResource(R.string.add))
                             }
                         }
                     }
@@ -193,7 +202,7 @@ fun BaseScreen(filterViewModel: FilterViewModel, petViewModel: PetViewModel, ses
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(pets) { pet ->
-                                petCard(
+                                PetCard(
                                     pet = pet,
                                     onClick = { selectedPet = pet }
                                 )

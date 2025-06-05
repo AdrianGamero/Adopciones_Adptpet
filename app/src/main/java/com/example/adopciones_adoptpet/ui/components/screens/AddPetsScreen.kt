@@ -44,9 +44,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.adopciones_adoptpet.R
 import com.example.adopciones_adoptpet.domain.model.PetWithImagesAndBreeds
 import com.example.adopciones_adoptpet.domain.model.enums.PetGender
 import com.example.adopciones_adoptpet.domain.model.enums.PetSize
@@ -104,10 +106,12 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
     LaunchedEffect(insertResult) {
         insertResult?.let {
             if (it.isSuccess) {
-                Toast.makeText(context, "Animal añadido correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,
+                    context.getString(R.string.added_successfully), Toast.LENGTH_SHORT).show()
                 navController.popBackStack()
             } else {
-                showErrorDialog = "Error al insertar el animal: ${it.exceptionOrNull()?.localizedMessage}"
+                showErrorDialog =
+                    context.getString(R.string.insert_error, it.exceptionOrNull()?.localizedMessage)
             }
             viewModel.clearInsertResult()
         }
@@ -117,32 +121,35 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
     var selectedBreed by remember { mutableStateOf("") }
     val onAddClick: () -> Unit = onAddClick@{
         if (name.isBlank() || age.isBlank() || selectedBreed.isBlank() || selectedGender.isBlank() || selectedSize.isBlank()) {
-            Toast.makeText(context, "Por favor, completa todos los campos.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                context.getString(R.string.complete_all_fields), Toast.LENGTH_SHORT).show()
             return@onAddClick
         }
 
         if (age.toIntOrNull() == null || age.toInt() < 0) {
-            Toast.makeText(context, "La edad debe ser un número válido.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.age_input_error), Toast.LENGTH_SHORT).show()
             return@onAddClick
         }
 
-        if (!selectedBreed.matches(Regex("^[a-zA-ZÁÉÍÓÚáéíóúñÑ ]+$"))) {
-            Toast.makeText(context, "La raza solo puede contener letras y espacios.", Toast.LENGTH_SHORT).show()
+        if (!selectedBreed.matches(Regex(context.getString(R.string.breed_pattern)))) {
+            Toast.makeText(context,
+                context.getString(R.string.only_text_characters), Toast.LENGTH_SHORT).show()
             return@onAddClick
         }
 
         if (selectedImageUris.size > 4) {
-            showErrorDialog = "Solo se pueden añadir hasta 4 imágenes."
+            showErrorDialog = context.getString(R.string.max_4_images)
             return@onAddClick
         }
 
-        if (selectedAgeUnit == "Meses" && age.toInt() > 11) {
-            Toast.makeText(context, "Si seleccionas meses, el valor no puede ser mayor de 11.", Toast.LENGTH_SHORT).show()
+        if (selectedAgeUnit == context.getString(R.string.months) && age.toInt() > 11) {
+            Toast.makeText(context,
+                context.getString(R.string.no_more_than_11_months), Toast.LENGTH_SHORT).show()
             return@onAddClick
         }
 
-        val size = PetSize.values().firstOrNull { it.displayName == selectedSize } ?: PetSize.SMALL
-        val gender = PetGender.values().firstOrNull { it.displayName == selectedGender } ?: PetGender.MALE
+        val size = PetSize.entries.firstOrNull { it.displayName == selectedSize } ?: PetSize.SMALL
+        val gender = PetGender.entries.firstOrNull { it.displayName == selectedGender } ?: PetGender.MALE
 
         val bitmaps = selectedImageUris.mapNotNull { uri ->
             try {
@@ -154,8 +161,8 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
             }
         }
         val ageInMonths = when (selectedAgeUnit) {
-            "Años" -> age.toInt() * 12
-            "Meses" -> age.toInt()
+            context.getString(R.string.years) -> age.toInt() * 12
+            context.getString(R.string.months) -> age.toInt()
             else -> age.toInt()
         }
 
@@ -223,10 +230,10 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
                     }
                 },
                         modifier = Modifier
-                        .width(200.dp)
-                    .align(Alignment.CenterHorizontally)
+                            .width(200.dp)
+                            .align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Seleccionar imágenes")
+                    Text(stringResource(R.string.selec_images_label))
                 }
                 LazyRow {
                     items(selectedImageUris) { uri ->
@@ -241,34 +248,47 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
                         )
                     }
                 }
-                textField("Nombre", name) { name = it }
+                textField(stringResource(R.string.name), name) { name = it }
                 Row(){
-                    textField("Edad", age, Modifier.fillMaxWidth(0.5f).padding(start= 16.dp, top = 8.dp, bottom = 8.dp)) { age = it }
+                    textField(stringResource(R.string.age), age,
+                        Modifier
+                            .fillMaxWidth(0.5f)
+                            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) { age = it }
                     selectMenu(
                         label = "",
                         options = ageOptions,
                         selectedOption = selectedAgeUnit,
                         onOptionSelected = { selectedAgeUnit = it },
-                        modifier = Modifier.fillMaxWidth().padding(end= 16.dp, top = 8.dp, bottom = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 16.dp, top = 8.dp, bottom = 8.dp)
                     )
                 }
 
-                selectMenu(label = "Tamaño",
+                selectMenu(label = stringResource(R.string.size),
                     options = petSizeOptions,
                     selectedOption = selectedSize,
-                    onOptionSelected = { selectedSize = it },Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp))
-                selectMenu(label = "Sexo",
+                    onOptionSelected = { selectedSize = it },
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp))
+                selectMenu(label = stringResource(R.string.gender),
                     options = petGendersOptions,
                     selectedOption = selectedGender,
-                    onOptionSelected = { selectedGender = it },Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp))
+                    onOptionSelected = { selectedGender = it },
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp))
 
                 WriteableSelectMenu(
-                    label = "Raza",
+                    label = stringResource(R.string.Breed),
                     options = breedOptions,
                     query = selectedBreed,
                     onQueryChange = { selectedBreed = it },
                     onOptionSelected = {},
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
 
 
@@ -281,7 +301,7 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
                         .width(200.dp)
                         .align(Alignment.CenterHorizontally)
                 ) {
-                    Text( "Añadir animal")
+                    Text(stringResource(R.string.add_animal_label))
                 }
             }
         }
