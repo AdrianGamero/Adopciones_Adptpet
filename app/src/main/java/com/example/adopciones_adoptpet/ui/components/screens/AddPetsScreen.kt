@@ -1,12 +1,12 @@
 package com.example.adopciones_adoptpet.ui.components.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -69,31 +69,43 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
     var selectedAgeUnit by remember { mutableStateOf("Años") }
 
 
-    val petSizes = PetSize.values().filter { it != PetSize.ALL }
+    val petSizes = PetSize.entries.filter { it != PetSize.ALL }
     val petSizeOptions = petSizes.map { it.displayName }
     var selectedSize by remember { mutableStateOf("") }
     val context = LocalContext.current
 
 
-    val petGenders = PetGender.values().filter { it != PetGender.ALL }
+    val petGenders = PetGender.entries.filter { it != PetGender.ALL }
     val petGendersOptions = petGenders.map { it.displayName }
     var selectedGender by remember { mutableStateOf("") }
 
-    val tabs = PetType.values().filter { it != PetType.ALL }
+    val tabs = PetType.entries.filter { it != PetType.ALL }
     var selectedTabIndex by remember { mutableStateOf(0) }
     val selectedPetType = tabs[selectedTabIndex]
     val breeds by viewModel.breeds
     val selectedImageUris = remember { mutableStateListOf<Uri>() }
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(4)
-    ) { uris ->
-        uris?.let { selectedImageUris.addAll(it) }
+    val galleryChooserLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val uriList = mutableListOf<Uri>()
+
+            data?.clipData?.let { clipData ->
+                for (i in 0 until clipData.itemCount) {
+                    clipData.getItemAt(i)?.uri?.let { uriList.add(it) }
+                }
+            }
+
+            if (uriList.isEmpty()) {
+                data?.data?.let { uriList.add(it) }
+            }
+
+            val maxImages = 4 - selectedImageUris.size
+            selectedImageUris.addAll(uriList.take(maxImages))
+        }
     }
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        selectedImageUris.addAll(uris)
-    }
+
     val insertResult by viewModel.insertResult.collectAsState()
     var showErrorDialog by remember { mutableStateOf<String?>(null) }
     val darkTheme = isSystemInDarkTheme()
@@ -221,13 +233,13 @@ fun AddPetsScreen(viewModel: PetViewModel, navController: NavController) {
                     .padding(top = 32.dp)
             ) {
                 Button(onClick = {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        photoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    } else {
-                        galleryLauncher.launch("image/*")
+                    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                        type = "image/*"
+                        putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                     }
+
+                    val chooser = Intent.createChooser(intent, "Selecciona imágenes")
+                    galleryChooserLauncher.launch(chooser)
                 },
                         modifier = Modifier
                             .width(200.dp)

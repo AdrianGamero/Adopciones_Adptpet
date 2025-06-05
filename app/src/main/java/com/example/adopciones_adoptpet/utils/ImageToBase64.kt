@@ -5,7 +5,7 @@ import android.util.Base64
 import java.io.ByteArrayOutputStream
 
 object ImageToBase64 {
-    private const val MAX_SIZE_BYTES = 1_000_000
+    private const val MAX_SIZE_BYTES = 750_000
 
     fun encodeBitmapToBase64(bitmap: Bitmap): String {
         var quality = 100

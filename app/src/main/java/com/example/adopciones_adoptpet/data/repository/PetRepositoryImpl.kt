@@ -127,7 +127,6 @@ class PetRepositoryImpl(
 
 
     override suspend fun insertPet(pet: PetWithImagesAndBreeds, shelterId: String): Result<Unit> {
-        Log.d("insert pet", "repositorio llamado")
         return try {
             val existingBreeds = roomPetDataSource.getBreeds()
 
